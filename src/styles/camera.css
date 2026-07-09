@@ -1,0 +1,93 @@
+/* ── Camera Capture Modal ───────────────────────────── */
+
+.camera-modal-box {
+  max-width: 420px;
+  width: 92vw;
+  padding: 1.1rem 1.1rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+}
+
+.camera-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+/* Live video / captured-photo area */
+.camera-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: var(--radius-sm, 10px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#cameraPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.captured-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Controls row */
+.camera-controls {
+  display: flex;
+  gap: .55rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.camera-shutter-btn {
+  min-width: 140px;
+  padding: .55rem 1.2rem;
+  font-size: .95rem;
+}
+
+.btn-green {
+  background: var(--accent-green, #32d74b);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-xs, 7px);
+  padding: .45rem 1rem;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-green:hover { opacity: .85; }
+
+/* Wardrobe image picker preview box */
+.wardrobe-img-preview {
+  width: 100%;
+  min-height: 90px;
+  border: 1.5px dashed rgba(255, 255, 255, .18);
+  border-radius: var(--radius-sm, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .03);
+  overflow: hidden;
+  padding: .5rem;
+}
+
+/* Responsive: on very small screens keep controls stacked */
+@media (max-width: 360px) {
+  .camera-controls { flex-direction: column; }
+  .camera-shutter-btn { min-width: 0; width: 100%; }
+}

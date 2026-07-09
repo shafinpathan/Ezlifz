@@ -1,0 +1,1568 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b0f" />
+  <!-- Security: strict CSP — no external scripts, no eval, media limited to self/data/blob -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Ezlifz</title>
+
+  <!-- CSS imports -->
+  <link rel="stylesheet" href="/src/styles/variables.css" />
+  <link rel="stylesheet" href="/src/styles/base.css" />
+  <link rel="stylesheet" href="/src/styles/layout.css" />
+  <link rel="stylesheet" href="/src/styles/components.css" />
+  <link rel="stylesheet" href="/src/styles/animations.css" />
+  <link rel="stylesheet" href="/src/styles/dashboard.css" />
+  <link rel="stylesheet" href="/src/styles/nutrition.css" />
+  <link rel="stylesheet" href="/src/styles/workout.css" />
+  <link rel="stylesheet" href="/src/styles/progress.css" />
+  <link rel="stylesheet" href="/src/styles/ai.css" />
+  <link rel="stylesheet" href="/src/styles/metrics.css" />
+  <link rel="stylesheet" href="/src/styles/settings.css" />
+  <link rel="stylesheet" href="/src/styles/attendance.css" />
+  <link rel="stylesheet" href="/src/styles/todo.css" />
+  <link rel="stylesheet" href="/src/styles/wardrobe.css" />
+  <link rel="stylesheet" href="/src/styles/splitwise.css" />
+  <link rel="stylesheet" href="/src/styles/notes.css" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/src/styles/camera.css" />
+  <link rel="stylesheet" href="/src/styles/polish.css" />
+
+  <!-- JS entry point -->
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body class="dark-theme">
+
+<!-- ── PWA UPDATE BANNER ─────────────────────────────────────────────────── -->
+<div id="updateBanner" class="hidden" style="position:fixed;top:0;left:0;right:0;z-index:2000;background:var(--accent-blue);color:#fff;padding:.7rem 1.25rem;display:flex;align-items:center;gap:.75rem;font-size:.84rem;font-weight:600;flex-wrap:wrap">
+  <span style="flex:1">A new version of Ezlifz is available.</span>
+  <button id="updateNowBtn" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:8px;padding:.35rem .85rem;cursor:pointer;font-size:.82rem;font-weight:700">Update Now</button>
+  <button id="updateLaterBtn" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:.8rem;padding:.35rem .5rem">Later</button>
+</div>
+
+<canvas id="particleCanvas"></canvas>
+<!-- ── SIDEBAR ─────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="13 2 3 14 11 14 10 22 21 9 13 9 13 2"/></svg></span>
+    <span class="brand-name">Ezlifz</span>
+  </div>
+
+  <div class="streak-pill" id="sidebarStreak">
+    <span class="streak-fire"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1.5 4.5-4.5 6.5-4.5 11.5a6.5 6.5 0 0 0 13 0c0-2.2-1-4.3-2.6-5.8-.4 1.4-1.3 2.3-2.4 2.3 1.1-3.2-1-6.5-3.5-8z"/></svg></span>
+    <span id="streakCount">0</span> day streak
+  </div>
+
+  <ul class="nav-list">
+    <li class="nav-item active" data-tab="dashboard">
+      <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
+    </li>
+    <li class="nav-item" data-tab="attendance">
+      <span class="nav-icon">▤</span><span class="nav-label">Attendance</span>
+    </li>
+    <li class="nav-item" data-tab="todo">
+      <span class="nav-icon">✦</span><span class="nav-label">Tasks</span>
+    </li>
+    <li class="nav-item" data-tab="wardrobe">
+      <span class="nav-icon">▣</span><span class="nav-label">Wardrobe</span>
+    </li>
+    <li class="nav-item" data-tab="nutrition">
+      <span class="nav-icon">◉</span><span class="nav-label">Nutrition</span>
+    </li>
+    <li class="nav-item" data-tab="workout">
+      <span class="nav-icon">◐</span><span class="nav-label">Workout</span>
+    </li>
+    <li class="nav-item" data-tab="progress">
+      <span class="nav-icon">◑</span><span class="nav-label">Progress</span>
+    </li>
+    <li class="nav-item" data-tab="ai">
+      <span class="nav-icon">◆</span><span class="nav-label">AI Insight</span>
+    </li>
+    <li class="nav-item" data-tab="metrics">
+      <span class="nav-icon">◎</span><span class="nav-label">Body Metrics</span>
+    </li>
+    <li class="nav-item" data-tab="settings">
+      <span class="nav-icon">◇</span><span class="nav-label">Settings</span>
+    </li>
+    <li class="nav-item" data-tab="splitwise">
+      <span class="nav-icon">⇄</span><span class="nav-label">Splitwise</span>
+    </li>
+    <li class="nav-item" data-tab="notes">
+      <span class="nav-icon">✐</span><span class="nav-label">Notes</span>
+    </li>
+  </ul>
+
+</nav>
+
+<!-- ── MOBILE BOTTOM NAV ───────────────────────────────── -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-item active" data-tab="dashboard"><span>◈</span><small>Home</small></button>
+  <button class="bn-item" data-tab="attendance"><span>▤</span><small>Attend</small></button>
+  <button class="bn-item" data-tab="todo"><span>✦</span><small>Tasks</small></button>
+  <button class="bn-item" data-tab="splitwise"><span>⇄</span><small>Split</small></button>
+  <button class="bn-item" data-tab="nutrition"><span>◉</span><small>Food</small></button>
+  <button class="bn-item" data-tab="workout"><span>◐</span><small>Workout</small></button>
+  <button class="bn-item" id="bnMoreBtn"><span>⋯</span><small>More</small></button>
+</nav>
+
+<!-- ── MORE SHEET (mobile overflow nav) ────────────────── -->
+<div class="modal-overlay hidden" id="moreSheet" style="align-items:flex-end">
+  <div class="modal-box more-sheet-box">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-grid">
+      <button class="more-sheet-item" data-tab="wardrobe"><span>▣</span><small>Wardrobe</small></button>
+      <button class="more-sheet-item" data-tab="progress"><span>◑</span><small>Progress</small></button>
+      <button class="more-sheet-item" data-tab="ai"><span>◆</span><small>AI Insight</small></button>
+      <button class="more-sheet-item" data-tab="metrics"><span>◎</span><small>Metrics</small></button>
+      <button class="more-sheet-item" data-tab="settings"><span>◇</span><small>Settings</small></button>
+      <button class="more-sheet-item" data-tab="notes"><span>✐</span><small>Notes</small></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ────────────────────────────────────── -->
+<main class="main-content" id="mainContent">
+
+  <!-- ══ DASHBOARD ══ -->
+  <section class="tab-section" id="tab-dashboard">
+
+    <!-- ── HERO BANNER ── -->
+    <div class="dash-hero glass-card" id="dashHero">
+      <div class="dash-hero-left">
+        <div class="dash-greeting" id="dashGreeting">Good morning</div>
+        <div class="dash-hero-date" id="dashDate">Loading...</div>
+        <div class="dash-hero-score-row">
+          <div class="dash-overall-score">
+            <canvas id="dashScoreRing" width="72" height="72"></canvas>
+            <div class="dash-score-inner">
+              <span class="dash-score-num" id="dashOverallScore">—</span>
+              <span class="dash-score-sub">Score</span>
+            </div>
+          </div>
+          <div class="dash-hero-stats">
+            <div class="dash-hero-stat"><span class="dhs-val" id="heroStreak">0</span><span class="dhs-label">Day Streak</span></div>
+            <div class="dash-hero-stat"><span class="dhs-val" id="heroTasksDone">0</span><span class="dhs-label">Tasks Done</span></div>
+            <div class="dash-hero-stat"><span class="dhs-val" id="heroAttend">—</span><span class="dhs-label">Attendance</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dash-hero-right">
+        <span class="badge-goal" id="goalBadge">Goal: Muscle Gain</span>
+        <div class="dash-completion-ring">
+          <canvas id="ringDayCompletion" width="90" height="90"></canvas>
+          <div class="ring-center-label" id="dayCompletionPct">0%<br><span>Today</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SMART SUMMARY STRIP (8 micro-cards) ── -->
+    <div class="dash-micro-grid" id="dashMicroGrid">
+      <div class="micro-card" data-tab="nutrition">
+        <div class="micro-icon" style="color:var(--accent-green)">◉</div>
+        <div class="micro-val" id="mCalories">0</div>
+        <div class="micro-label">Calories</div>
+        <div class="micro-bar"><div class="micro-fill" id="mCalBar" style="background:var(--accent-green)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="nutrition">
+        <div class="micro-icon" style="color:var(--accent-blue)">◆</div>
+        <div class="micro-val" id="mProtein">0g</div>
+        <div class="micro-label">Protein</div>
+        <div class="micro-bar"><div class="micro-fill" id="mProBar" style="background:var(--accent-blue)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="metrics">
+        <div class="micro-icon" style="color:var(--accent-blue)">●</div>
+        <div class="micro-val" id="dmWater">0L</div>
+        <div class="micro-label">Hydration</div>
+        <div class="micro-bar"><div class="micro-fill" id="dmWaterBar" style="background:var(--accent-blue)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="metrics">
+        <div class="micro-icon" style="color:var(--accent-purple)">◑</div>
+        <div class="micro-val" id="dmSleep">—h</div>
+        <div class="micro-label">Sleep</div>
+        <div class="micro-bar"><div class="micro-fill" id="dmSleepBar" style="background:var(--accent-purple)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="workout">
+        <div class="micro-icon" style="color:var(--accent-orange)">◐</div>
+        <div class="micro-val" id="mWorkout">—</div>
+        <div class="micro-label">Workout</div>
+        <div class="micro-bar"><div class="micro-fill" id="mWorkoutBar" style="background:var(--accent-orange)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="todo">
+        <div class="micro-icon" style="color:var(--accent-yellow)">✦</div>
+        <div class="micro-val" id="mTasks">0</div>
+        <div class="micro-label">Tasks Left</div>
+        <div class="micro-bar"><div class="micro-fill" id="mTaskBar" style="background:var(--accent-yellow)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="metrics">
+        <div class="micro-icon" style="color:var(--accent-orange)">↯</div>
+        <div class="micro-val" id="dmEnergy">—</div>
+        <div class="micro-label">Energy</div>
+        <div class="micro-bar"><div class="micro-fill" id="dmEnergyBar" style="background:var(--accent-orange)"></div></div>
+      </div>
+      <div class="micro-card" data-tab="attendance">
+        <div class="micro-icon" style="color:var(--accent-green)">▤</div>
+        <div class="micro-val" id="mAttend">—</div>
+        <div class="micro-label">Attendance</div>
+        <div class="micro-bar"><div class="micro-fill" id="mAttendBar" style="background:var(--accent-green)"></div></div>
+      </div>
+    </div>
+
+    <!-- ── MACRO RINGS + SCORES ROW ── -->
+    <div class="dash-mid-grid">
+      <!-- Macro rings -->
+      <div class="glass-card">
+        <div class="card-title">Macros Today</div>
+        <div class="ring-row" style="justify-content:center;gap:.75rem">
+          <div class="ring-card"><canvas class="ring-canvas" id="ringCalories" width="110" height="110"></canvas><div class="ring-label">Calories</div></div>
+          <div class="ring-card"><canvas class="ring-canvas" id="ringProtein" width="110" height="110"></canvas><div class="ring-label">Protein</div></div>
+          <div class="ring-card"><canvas class="ring-canvas" id="ringCarbs" width="110" height="110"></canvas><div class="ring-label">Carbs</div></div>
+          <div class="ring-card"><canvas class="ring-canvas" id="ringFat" width="110" height="110"></canvas><div class="ring-label">Fat</div></div>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);gap:.6rem;margin-top:1rem;margin-bottom:0">
+          <div class="kpi-card accent-green" style="padding:.9rem .75rem">
+            <div class="kpi-label">Calories</div>
+            <div class="kpi-value" style="font-size:1.4rem" id="dashCalIn">0</div>
+            <div class="kpi-sub">of <span id="dashCalGoal">2500</span></div>
+            <div class="kpi-bar"><div class="kpi-fill green" id="dashCalBar"></div></div>
+          </div>
+          <div class="kpi-card accent-blue" style="padding:.9rem .75rem">
+            <div class="kpi-label">Protein</div>
+            <div class="kpi-value" style="font-size:1.4rem" id="dashProtein">0g</div>
+            <div class="kpi-sub">of <span id="dashProteinGoal">160</span>g</div>
+            <div class="kpi-bar"><div class="kpi-fill blue" id="dashProteinBar"></div></div>
+          </div>
+          <div class="kpi-card accent-orange" style="padding:.9rem .75rem">
+            <div class="kpi-label">Water</div>
+            <div class="kpi-value" style="font-size:1.4rem" id="dashWater">0L</div>
+            <div class="kpi-sub">of <span id="dashWaterGoal">3</span>L</div>
+            <div class="kpi-bar"><div class="kpi-fill orange" id="dashWaterBar"></div></div>
+          </div>
+          <div class="kpi-card accent-purple" style="padding:.9rem .75rem">
+            <div class="kpi-label">Weight</div>
+            <div class="kpi-value" style="font-size:1.4rem" id="dashWeight">—</div>
+            <div class="kpi-sub">Goal: <span id="dashGoalWeight">75</span>kg</div>
+            <div class="kpi-bar"><div class="kpi-fill purple" id="dashWeightBar"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scores + Weekly -->
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="glass-card">
+          <div class="card-title">Recovery &amp; Scores</div>
+          <div class="score-list">
+            <div class="score-item"><span class="score-name">Recovery</span><div class="score-bar-wrap"><div class="score-bar" id="sbRecovery"></div></div><span class="score-val" id="svRecovery">—</span></div>
+            <div class="score-item"><span class="score-name">Muscle Gain</span><div class="score-bar-wrap"><div class="score-bar accent-blue-bar" id="sbMuscle"></div></div><span class="score-val" id="svMuscle">—</span></div>
+            <div class="score-item"><span class="score-name">Consistency</span><div class="score-bar-wrap"><div class="score-bar accent-orange-bar" id="sbConsistency"></div></div><span class="score-val" id="svConsistency">—</span></div>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Weekly Snapshot</div>
+          <div class="weekly-summary" id="weeklySummary">
+            <div class="ws-row"><span>Workouts</span><strong id="wsWorkouts">0/7</strong></div>
+            <div class="ws-row"><span>Avg Calories</span><strong id="wsAvgCal">—</strong></div>
+            <div class="ws-row"><span>Avg Protein</span><strong id="wsAvgPro">—</strong></div>
+            <div class="ws-row"><span>Weight Δ</span><strong id="wsWeightDelta">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM ROW: Today's Tasks + Workout + AI Insights ── -->
+    <div class="dash-lower-grid">
+      <!-- Tasks Due Today -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <div class="card-title">Today's Tasks</div>
+          <button class="btn-outline-sm" onclick="switchTab('todo')">View All →</button>
+        </div>
+        <div id="dashTodayTasks"><div class="empty-state-sm">No tasks for today</div></div>
+      </div>
+
+      <!-- Today's Workout -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <div class="card-title">Today's Workout</div>
+          <button class="btn-outline-sm" onclick="switchTab('workout')">Open →</button>
+        </div>
+        <div id="dashWorkoutStatus"><div class="empty-state-sm">No workout logged today</div></div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="glass-card">
+        <div class="card-title">AI Insights</div>
+        <div id="dashAiInsights"><div class="empty-state-sm">Log data to see insights</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ NUTRITION ══ -->
+  <section class="tab-section hidden" id="tab-nutrition">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Nutrition</h1>
+        <p class="page-sub">Track every meal, every macro</p>
+      </div>
+      <input class="search-input" type="text" id="nutritionSearch" placeholder="Search meals..." />
+    </div>
+
+    <!-- Macro summary bar -->
+    <div class="macro-summary-bar glass-card">
+      <div class="macro-col">
+        <div class="macro-val" id="nsCalories">0</div>
+        <div class="macro-name">kcal</div>
+        <div class="macro-progress"><div class="mp-fill green" id="nsCalBar"></div></div>
+      </div>
+      <div class="macro-divider"></div>
+      <div class="macro-col">
+        <div class="macro-val" id="nsProtein">0g</div>
+        <div class="macro-name">Protein</div>
+        <div class="macro-progress"><div class="mp-fill blue" id="nsProBar"></div></div>
+      </div>
+      <div class="macro-divider"></div>
+      <div class="macro-col">
+        <div class="macro-val" id="nsCarbs">0g</div>
+        <div class="macro-name">Carbs</div>
+        <div class="macro-progress"><div class="mp-fill orange" id="nsCarbBar"></div></div>
+      </div>
+      <div class="macro-divider"></div>
+      <div class="macro-col">
+        <div class="macro-val" id="nsFat">0g</div>
+        <div class="macro-name">Fat</div>
+        <div class="macro-progress"><div class="mp-fill purple" id="nsFatBar"></div></div>
+      </div>
+    </div>
+
+    <!-- Meal Plan Presets -->
+    <div class="glass-card" id="mealPlanCard">
+      <div class="card-title-row">
+        <div class="card-title">Meal Plan Presets</div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <div class="preset-target-badge">Target: 2800–3200 kcal · P:110–130g · C:350–420g · F:70–90g</div>
+          <button class="btn-outline-sm" id="addPresetTimeBtn" style="font-size:.75rem;padding:.3rem .7rem">+ New Tab</button>
+          <button class="btn-outline-sm" id="managePresetsBtn" style="font-size:.75rem;padding:.3rem .7rem">Manage</button>
+        </div>
+      </div>
+      <div class="preset-time-tabs" id="presetTimeTabs"></div>
+      <div class="preset-options-row" id="presetOptionsRow"></div>
+      <!-- Add preset option row (shown when manage mode active) -->
+      <div id="addPresetOptionArea" style="display:none;margin-top:1rem;padding:1rem;background:var(--surface-light);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Add New Preset Option to "<span id="addPresetToTab"></span>"</div>
+        <div class="add-form-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+          <input class="form-control" type="text" id="newPresetLabel" placeholder="Option name (e.g. Option C)" />
+          <input class="form-control" type="text" id="newPresetFoods" placeholder="Foods (e.g. Oats · Milk)" />
+          <input class="form-control" type="number" id="newPresetCal"  placeholder="Calories" />
+          <input class="form-control" type="number" id="newPresetPro"  placeholder="Protein (g)" />
+          <input class="form-control" type="number" id="newPresetCarb" placeholder="Carbs (g)" />
+          <input class="form-control" type="number" id="newPresetFat"  placeholder="Fat (g)" />
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem">
+          <button class="btn-sm btn-green" id="saveNewPresetOptionBtn">+ Add Option</button>
+          <button class="btn-outline-sm" id="cancelAddPresetBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick add -->
+    <div class="glass-card">
+      <div class="card-title">Quick Add</div>
+      <div class="quick-add-grid" id="quickAddGrid"></div>
+    </div>
+
+    <!-- Meal sections -->
+    <div id="mealSections"></div>
+
+    <!-- Add food form -->
+    <div class="glass-card" id="addFoodCard">
+      <div class="card-title">Add Custom Food Entry</div>
+      <div class="add-form-grid">
+        <input class="form-control" type="text" id="mealType" placeholder="Meal (e.g. Breakfast, Lunch…)" list="mealTypeSuggestions" />
+        <datalist id="mealTypeSuggestions">
+          <option value="Breakfast" />
+          <option value="Lunch" />
+          <option value="Dinner" />
+          <option value="Snacks" />
+          <option value="Post-Workout" />
+          <option value="Pre-Workout" />
+          <option value="Brunch" />
+          <option value="Midnight Snack" />
+        </datalist>
+        <input class="form-control" type="text" id="foodName" placeholder="Food name" />
+        <input class="form-control" type="text" id="foodQty" placeholder="Qty (e.g. 100g)" />
+        <input class="form-control" type="number" id="foodCal" placeholder="Calories" />
+        <input class="form-control" type="number" id="foodPro" placeholder="Protein (g)" />
+        <input class="form-control" type="number" id="foodCarb" placeholder="Carbs (g)" />
+        <input class="form-control" type="number" id="foodFat" placeholder="Fat (g)" />
+      </div>
+      <button class="btn-primary" id="addFoodBtn">Add Food</button>
+    </div>
+  </section>
+
+  <!-- ══ WORKOUT ══ -->
+  <section class="tab-section hidden" id="tab-workout">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Workout</h1>
+        <p class="page-sub">Log sets, track volume, get stronger</p>
+      </div>
+      <input class="search-input" type="text" id="workoutSearch" placeholder="Search exercises..." />
+    </div>
+
+    <!-- Workout header controls -->
+    <div class="workout-header-bar glass-card">
+      <div class="wh-left">
+        <select class="form-control" id="workoutDayType">
+          <option>Push</option><option>Pull</option><option>Legs</option>
+          <option>Upper</option><option>Lower</option><option>Arms</option>
+          <option>Abs</option><option>Cardio</option><option>Full Body</option>
+        </select>
+        <input class="form-control" type="text" id="workoutName" placeholder="Workout name (optional)" />
+      </div>
+      <div class="wh-right">
+        <div class="timer-display" id="workoutTimer">00:00</div>
+        <button class="btn-sm btn-green" id="timerStartBtn">Start</button>
+        <button class="btn-sm btn-red" id="timerStopBtn">Stop</button>
+      </div>
+    </div>
+
+    <!-- Workout Day Presets -->
+    <div class="glass-card workout-preset-card">
+      <div class="card-title-row">
+        <div class="card-title">Weekly Program Presets</div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-outline-sm" id="addWdayBtn" style="font-size:.75rem;padding:.3rem .7rem">+ New Day</button>
+          <button class="btn-outline-sm" id="manageWdayBtn" style="font-size:.75rem;padding:.3rem .7rem">Manage</button>
+        </div>
+      </div>
+      <div class="wday-tabs" id="wdayTabs"></div>
+      <div id="wdayPreviewArea"></div>
+      <!-- Add exercise area (shown when Manage active) -->
+      <div id="addWdayExArea" style="display:none;margin-top:1rem;padding:1rem;background:var(--surface-light);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Add Exercise to "<span id="addWdayExToDay"></span>"</div>
+        <div class="add-form-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+          <input class="form-control" type="text" id="newWdayExName"   placeholder="Exercise name" />
+          <input class="form-control" type="text" id="newWdayExGroup"  placeholder="Muscle group (e.g. CHEST)" />
+          <input class="form-control" type="text" id="newWdayExScheme" placeholder="Scheme (e.g. 4 × 8–10)" />
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.75rem">
+          <button class="btn-sm btn-green" id="saveNewWdayExBtn">+ Add Exercise</button>
+          <button class="btn-outline-sm"   id="cancelAddWdayExBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add exercise form -->
+    <div class="glass-card">
+      <div class="card-title">Add Custom Exercise</div>
+      <div class="add-form-grid">
+        <input class="form-control" type="text" id="exName" placeholder="Exercise name" />
+        <input class="form-control" type="number" id="exSets" placeholder="Sets" />
+        <input class="form-control" type="number" id="exReps" placeholder="Reps" />
+        <input class="form-control" type="number" id="exWeight" placeholder="Weight (kg)" />
+        <input class="form-control" type="text" id="exNotes" placeholder="Notes (optional)" />
+      </div>
+      <button class="btn-primary" id="addExBtn">Add Exercise</button>
+    </div>
+
+    <!-- Rest timer -->
+    <div class="glass-card rest-timer-card">
+      <div class="card-title">Rest Timer</div>
+      <div class="rest-timer-row">
+        <div class="rest-timer-display" id="restTimerDisplay">00:00</div>
+        <div class="rest-btns">
+          <button class="btn-sm btn-outline" id="rest60">60s</button>
+          <button class="btn-sm btn-outline" id="rest90">90s</button>
+          <button class="btn-sm btn-outline" id="rest120">2m</button>
+          <button class="btn-sm btn-red" id="restStop">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercise list -->
+    <div class="glass-card">
+      <div class="card-title-row">
+        <div class="card-title">Today's Exercises</div>
+        <div class="volume-badge" id="volumeBadge">Volume: 0 kg</div>
+      </div>
+      <div id="exerciseList">
+        <div class="empty-state">No exercises yet. Add your first set above!</div>
+      </div>
+    </div>
+
+    <!-- Complete & history -->
+    <div class="workout-action-row">
+      <button class="btn-primary btn-complete" id="completeWorkoutBtn">✓ Complete Workout</button>
+    </div>
+
+    <div class="glass-card" id="workoutHistoryCard">
+      <div class="card-title">Workout History</div>
+      <div id="workoutHistory">
+        <div class="empty-state">No history yet</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PROGRESS ══ -->
+  <section class="tab-section hidden" id="tab-progress">
+    <div class="page-header">
+      <h1 class="page-title">Progress Analytics</h1>
+    </div>
+
+    <div class="chart-period-bar">
+      <button class="period-btn active" data-period="7">7 Days</button>
+      <button class="period-btn" data-period="14">14 Days</button>
+      <button class="period-btn" data-period="30">30 Days</button>
+    </div>
+
+    <div class="charts-grid">
+      <div class="glass-card chart-card">
+        <div class="card-title">Body Weight</div>
+        <canvas id="chartWeight"></canvas>
+      </div>
+      <div class="glass-card chart-card">
+        <div class="card-title">Calories Over Time</div>
+        <canvas id="chartCalories"></canvas>
+      </div>
+      <div class="glass-card chart-card">
+        <div class="card-title">Protein Intake</div>
+        <canvas id="chartProtein"></canvas>
+      </div>
+      <div class="glass-card chart-card">
+        <div class="card-title">Workout Volume</div>
+        <canvas id="chartVolume"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-top:1.5rem">
+      <div class="card-title">Strength Progression</div>
+      <div id="strengthProgression">
+        <div class="empty-state">Log workouts to see strength trends</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ AI COACH ══ -->
+  <section class="tab-section hidden" id="tab-ai">
+    <div class="page-header">
+      <h1 class="page-title">AI Insight</h1>
+      <p class="page-sub" style="color:var(--accent-green)">Insights from across your whole routine</p>
+    </div>
+
+    <!-- Overall cross-tab insights -->
+    <div class="glass-card overall-insights-card">
+      <div class="card-title-row">
+        <div class="card-title">Overall Insights</div>
+        <button class="btn-sm btn-outline" id="refreshOverall">↻ Refresh</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--text-muted);margin:.1rem 0 1rem">A snapshot pulled from every section — fitness, attendance, tasks, wardrobe and skincare.</p>
+      <div id="overallInsightsList" class="overall-grid"></div>
+    </div>
+
+    <!-- Score cards -->
+    <div class="ai-scores-row">
+      <div class="ai-score-card green">
+        <div class="ai-score-val" id="aiRecovery">—</div>
+        <div class="ai-score-label">Recovery Score</div>
+      </div>
+      <div class="ai-score-card blue">
+        <div class="ai-score-val" id="aiMuscle">—</div>
+        <div class="ai-score-label">Muscle Gain Score</div>
+      </div>
+      <div class="ai-score-card orange">
+        <div class="ai-score-val" id="aiConsistency">—</div>
+        <div class="ai-score-label">Consistency Score</div>
+      </div>
+    </div>
+
+    <!-- Feedback list -->
+    <div class="glass-card">
+      <div class="card-title-row">
+        <div class="card-title">Today's Feedback</div>
+        <button class="btn-sm btn-outline" id="refreshAI">↻ Refresh</button>
+      </div>
+      <div id="aiFeedbackList"></div>
+    </div>
+
+    <!-- Weekly insights -->
+    <div class="glass-card">
+      <div class="card-title">Weekly Insights</div>
+      <div id="aiWeeklyInsights"></div>
+    </div>
+  </section>
+
+  <!-- ══ BODY METRICS ══ -->
+  <section class="tab-section hidden" id="tab-metrics">
+    <div class="page-header">
+      <h1 class="page-title">Body Metrics</h1>
+      <p class="page-sub">Daily logging for trend analysis</p>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="glass-card">
+        <div class="card-title">Log Today's Metrics</div>
+        <div class="metrics-form">
+          <div class="metric-input-row">
+            <label>Weight (kg)</label>
+            <input class="form-control" type="number" id="mWeight" step="0.1" placeholder="e.g. 72.5" />
+          </div>
+          <div class="metric-input-row">
+            <label>Waist (cm)</label>
+            <input class="form-control" type="number" id="mWaist" step="0.1" placeholder="e.g. 82" />
+          </div>
+          <div class="metric-input-row">
+            <label>Sleep (hrs)</label>
+            <input class="form-control" type="number" id="mSleep" step="0.5" placeholder="e.g. 7.5" />
+          </div>
+          <div class="metric-input-row">
+            <label>Water (L)</label>
+            <input class="form-control" type="number" id="mWater" step="0.1" placeholder="e.g. 2.5" />
+          </div>
+          <div class="metric-input-row">
+            <label>Energy (1–10)</label>
+            <input class="form-control" type="number" id="mEnergy" min="1" max="10" placeholder="1–10" />
+          </div>
+          <div class="metric-input-row">
+            <label>Mood (1–10)</label>
+            <input class="form-control" type="number" id="mMood" min="1" max="10" placeholder="1–10" />
+          </div>
+          <button class="btn-primary" id="saveMetricsBtn" style="margin-top:1rem">Save Metrics</button>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">Weekly Averages</div>
+        <div id="metricsAverages">
+          <div class="empty-state">Log metrics to see averages</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-top:1.5rem">
+      <div class="card-title">Metrics Log</div>
+      <div id="metricsLog">
+        <div class="empty-state">No entries yet</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SETTINGS ══ -->
+  <section class="tab-section hidden" id="tab-settings">
+    <div class="page-header">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-sub">Configure your goals &amp; preferences</p>
+    </div>
+    <div class="settings-grid">
+      <div class="glass-card">
+        <div class="card-title">Goal &amp; Body</div>
+        <div class="settings-form">
+          <div class="setting-row">
+            <label>Current Weight (kg)</label>
+            <input class="form-control" type="number" id="setCurrWeight" step="0.1" />
+          </div>
+          <div class="setting-row">
+            <label>Goal Weight (kg)</label>
+            <input class="form-control" type="number" id="setGoalWeight" step="0.1" />
+          </div>
+          <div class="setting-row">
+            <label>Goal</label>
+            <select class="form-control" id="setGoal">
+              <option value="Muscle Gain">Muscle Gain</option>
+              <option value="Fat Loss">Fat Loss</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Recomp">Recomp</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">Daily Targets</div>
+        <div class="settings-form">
+          <div class="setting-row">
+            <label>Calories (kcal)</label>
+            <input class="form-control" type="number" id="setCalGoal" />
+          </div>
+          <div class="setting-row">
+            <label>Protein (g)</label>
+            <input class="form-control" type="number" id="setProGoal" />
+          </div>
+          <div class="setting-row">
+            <label>Carbs (g)</label>
+            <input class="form-control" type="number" id="setCarbGoal" />
+          </div>
+          <div class="setting-row">
+            <label>Fat (g)</label>
+            <input class="form-control" type="number" id="setFatGoal" />
+          </div>
+          <div class="setting-row">
+            <label>Water Goal (L)</label>
+            <input class="form-control" type="number" id="setWaterGoal" step="0.5" min="0.5" max="10" />
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-title">Appearance</div>
+        <div class="settings-form">
+          <div class="setting-row toggle-row">
+            <label>Dark Mode</label>
+            <div class="toggle-wrap">
+              <input type="checkbox" id="themeToggle" class="toggle-input" checked />
+              <label for="themeToggle" class="toggle-label"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile card (username) -->
+    <div class="glass-card" style="margin-top:1.5rem">
+      <div class="card-title">Profile</div>
+      <div class="settings-form">
+        <div class="setting-row">
+          <label>Your Name</label>
+          <input class="form-control" type="text" id="setUserName" placeholder="" maxlength="60" />
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="saveSettingsBtn" style="margin-top:1.5rem">Save Settings</button>
+
+    <div class="glass-card" style="margin-top:2rem">
+      <div class="card-title">App</div>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:1.25rem">Manage your data and install Ezlifz as a native app.</p>
+      <div style="display:flex;flex-direction:column;gap:.75rem;align-items:flex-start">
+        <button class="btn-outline" id="downloadDataBtn" style="display:flex;align-items:center;gap:.6rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Data (PDF)
+        </button>
+        <button class="btn-outline" id="installAppBtn" style="display:none;align-items:center;gap:.6rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v13m0 0l-4-4m4 4l4-4M3 21h18"/></svg>
+          Install App
+        </button>
+      </div>
+    </div>
+
+    <div class="glass-card danger-zone" style="margin-top:2rem">
+      <div class="card-title" style="color:var(--danger)">Reset Data</div>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:1.1rem">Select a module to permanently delete its data. Only that module's data is removed — everything else stays intact.</p>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+        <select class="form-control" id="resetModuleSelect" style="min-width:190px;padding:.5rem .9rem;font-size:.85rem">
+          <option value="">Select module…</option>
+          <option value="attendance">Attendance</option>
+          <option value="tasks">Tasks</option>
+          <option value="nutrition">Nutrition</option>
+          <option value="workout">Workout</option>
+          <option value="metrics">Body Metrics</option>
+          <option value="wardrobe">Wardrobe &amp; Images</option>
+          <option value="splitwise">Splitwise</option>
+          <option value="notes">Notes</option>
+          <option value="settings">Settings</option>
+          <option value="dashboard">Dashboard Streak</option>
+          <option value="all">⚠ All Data</option>
+        </select>
+        <button class="btn-danger" id="resetModuleBtn">Delete</button>
+      </div>
+    </div>
+
+    <div class="designer-credit">
+      <span class="designer-credit-line"></span>
+      <p>Designed by <strong>Shafin Pathan</strong></p>
+      <span class="designer-credit-line"></span>
+    </div>
+  </section>
+
+  <!-- ══ ATTENDANCE ══ -->
+  <section class="tab-section hidden" id="tab-attendance">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Attendance</h1>
+        <p class="page-sub" id="attendDate">Loading...</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-outline" id="addSubjectBtn">+ Subject</button>
+        <button class="btn-outline" id="logLectureBtn">Log Lecture</button>
+        <button class="btn-outline" id="attendExportPdfBtn" style="display:flex;align-items:center;gap:.45rem">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Overall Summary -->
+    <div class="kpi-grid" id="attendKpiGrid">
+      <div class="kpi-card accent-green">
+        <div class="kpi-label">Overall Attendance</div>
+        <div class="kpi-value" id="attendOverall">—</div>
+        <div class="kpi-sub">across all subjects</div>
+        <div class="kpi-bar"><div class="kpi-fill green" id="attendOverallBar"></div></div>
+      </div>
+      <div class="kpi-card accent-blue">
+        <div class="kpi-label">Total Lectures</div>
+        <div class="kpi-value" id="attendTotal">0</div>
+        <div class="kpi-sub">logged this semester</div>
+        <div class="kpi-bar"><div class="kpi-fill blue" id="attendTotalBar" style="width:100%"></div></div>
+      </div>
+      <div class="kpi-card accent-orange">
+        <div class="kpi-label">Safe Subjects</div>
+        <div class="kpi-value" id="attendSafe">0</div>
+        <div class="kpi-sub">&gt;85% attendance</div>
+        <div class="kpi-bar"><div class="kpi-fill orange" id="attendSafeBar"></div></div>
+      </div>
+      <div class="kpi-card accent-purple" style="--accent-color:var(--danger)">
+        <div class="kpi-label">At Risk</div>
+        <div class="kpi-value" id="attendRisk" style="color:var(--danger)">0</div>
+        <div class="kpi-sub">&lt;75% attendance</div>
+        <div class="kpi-bar"><div class="kpi-fill" id="attendRiskBar" style="background:var(--danger)"></div></div>
+      </div>
+    </div>
+
+    <!-- Subject Cards Grid -->
+    <div id="subjectCardsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:1.5rem"></div>
+
+    <!-- Attendance Log -->
+    <div class="glass-card">
+      <div class="card-title-row">
+        <div class="card-title">Lecture Log</div>
+        <div style="display:flex;gap:.5rem">
+          <select class="form-control" id="logFilterSubject" style="min-width:140px;padding:.4rem .75rem;font-size:.8rem">
+            <option value="">All Subjects</option>
+          </select>
+          <select class="form-control" id="logFilterType" style="min-width:120px;padding:.4rem .75rem;font-size:.8rem">
+            <option value="">All Types</option>
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+          </select>
+        </div>
+      </div>
+      <div id="attendanceLog"><div class="empty-state">No lectures logged yet</div></div>
+    </div>
+  </section>
+
+  <!-- ══ TODO ══ -->
+  <section class="tab-section hidden" id="tab-todo">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Tasks</h1>
+        <p class="page-sub" id="todoPendingCount">0 pending tasks</p>
+      </div>
+      <div class="header-actions">
+        <input class="search-input" type="text" id="todoSearch" placeholder="Search tasks..." />
+        <select class="form-control" id="todoFilterPriority" style="padding:.55rem .9rem;font-size:.82rem;min-width:120px">
+          <option value="">All Priority</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <button class="btn-primary" id="openAddTaskBtn" style="white-space:nowrap">+ Add Task</button>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="task-stats-strip glass-card">
+      <div class="tss-grid">
+        <div class="tss-item"><span class="tss-val" id="tssTotal">0</span><span class="tss-label">Total</span></div>
+        <div class="tss-item"><span class="tss-val" style="color:var(--accent-yellow)" id="tssToday">0</span><span class="tss-label">Today</span></div>
+        <div class="tss-item"><span class="tss-val" style="color:var(--accent-blue)" id="tssInProgress">0</span><span class="tss-label">Active</span></div>
+        <div class="tss-item"><span class="tss-val" style="color:var(--accent-green)" id="tssDone">0</span><span class="tss-label">Done</span></div>
+        <div class="tss-item"><span class="tss-val" style="color:var(--danger)" id="tssOverdue">0</span><span class="tss-label">Overdue</span></div>
+      </div>
+      <div class="tss-toggle">
+        <button class="btn-outline-sm task-view-btn active" data-view="kanban">Kanban</button>
+        <button class="btn-outline-sm task-view-btn" data-view="list">List</button>
+      </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="swipe-hint">Swipe columns sideways &rarr;</div>
+    <div id="kanbanBoard" class="kanban-board">
+      <div class="kanban-col-wrap">
+        <div class="kanban-col-header" style="--col-color:var(--text-muted)">
+          <span class="kcol-dot"></span>
+          <span class="kcol-title">Backlog</span>
+          <span class="kcol-count" id="countBacklog">0</span>
+        </div>
+        <div id="col-backlog" class="kanban-col" data-status="backlog"></div>
+        <button class="kanban-add-btn" data-status="backlog">+ Add to Backlog</button>
+      </div>
+      <div class="kanban-col-wrap">
+        <div class="kanban-col-header" style="--col-color:var(--accent-yellow)">
+          <span class="kcol-dot" style="background:var(--accent-yellow)"></span>
+          <span class="kcol-title">Today</span>
+          <span class="kcol-count" id="countToday">0</span>
+        </div>
+        <div id="col-today" class="kanban-col" data-status="today"></div>
+        <button class="kanban-add-btn" data-status="today">+ Add to Today</button>
+      </div>
+      <div class="kanban-col-wrap">
+        <div class="kanban-col-header" style="--col-color:var(--accent-blue)">
+          <span class="kcol-dot" style="background:var(--accent-blue)"></span>
+          <span class="kcol-title">In Progress</span>
+          <span class="kcol-count" id="countInProgress">0</span>
+        </div>
+        <div id="col-in-progress" class="kanban-col" data-status="in-progress"></div>
+        <button class="kanban-add-btn" data-status="in-progress">+ Add</button>
+      </div>
+      <div class="kanban-col-wrap">
+        <div class="kanban-col-header" style="--col-color:var(--accent-green)">
+          <span class="kcol-dot" style="background:var(--accent-green)"></span>
+          <span class="kcol-title">✓ Done</span>
+          <span class="kcol-count" id="countCompleted">0</span>
+        </div>
+        <div id="col-completed" class="kanban-col" data-status="completed"></div>
+      </div>
+    </div>
+
+    <!-- List View (hidden by default) -->
+    <div id="taskListView" class="hidden glass-card" style="padding:1.5rem">
+      <div id="taskListContainer"></div>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="glass-card task-xp-card">
+      <div class="task-xp-row">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div id="todoLevelBadge" class="level-badge">Lvl 1</div>
+          <div>
+            <div style="font-size:.82rem;font-weight:600;color:var(--text-primary)">Productivity Level</div>
+            <div style="font-size:.72rem;color:var(--text-muted)" id="todoXpLabel">0 XP total</div>
+          </div>
+        </div>
+        <div style="font-size:.78rem;color:var(--text-muted)" id="todoXpNext">100 XP to next level</div>
+      </div>
+      <div class="task-xp-bar-wrap">
+        <div id="todoXpBar" class="task-xp-fill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WARDROBE ══ -->
+  <section class="tab-section hidden" id="tab-wardrobe">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Wardrobe</h1>
+        <p class="page-sub">Your digital clothing library &amp; outfit journal</p>
+      </div>
+      <div class="header-actions">
+        <select class="form-control" id="wardrobeFilterCat" style="padding:.55rem .9rem;font-size:.82rem;min-width:130px">
+          <option value="">All Categories</option>
+          <option value="tshirt">T-Shirts</option>
+          <option value="shirt">Shirts</option>
+          <option value="hoodie">Hoodies</option>
+          <option value="jacket">Jackets</option>
+          <option value="jeans">Jeans</option>
+          <option value="trousers">Trousers</option>
+          <option value="joggers">Joggers</option>
+          <option value="shorts">Shorts</option>
+          <option value="shoes">Shoes</option>
+          <option value="accessories">Accessories</option>
+          <option value="watch">Watches</option>
+          <option value="perfume">Perfumes</option>
+        </select>
+        <button class="btn-outline" id="addClothingBtn">+ Add Item</button>
+        <button class="btn-primary" id="buildOutfitBtn">Build Outfit</button>
+      </div>
+    </div>
+
+    <!-- Wardrobe Tabs -->
+    <div class="wardrobe-tab-bar">
+      <button class="wardrobe-tab active" data-wtab="closet">Closet</button>
+      <button class="wardrobe-tab" data-wtab="outfits">Outfits</button>
+      <button class="wardrobe-tab" data-wtab="log">Log</button>
+      <button class="wardrobe-tab" data-wtab="analytics">Analytics</button>
+    </div>
+
+    <!-- Closet View -->
+    <div id="wtab-closet" class="wardrobe-panel">
+      <div id="clothingGrid" class="clothing-grid"></div>
+    </div>
+
+    <!-- Outfits View -->
+    <div id="wtab-outfits" class="wardrobe-panel hidden">
+      <div id="outfitsGrid" class="outfits-grid"></div>
+    </div>
+
+    <!-- Log View -->
+    <div id="wtab-log" class="wardrobe-panel hidden">
+      <div class="glass-card">
+        <div class="card-title-row">
+          <div class="card-title">Outfit Log</div>
+          <button class="btn-outline" id="logOutfitBtn">+ Log Today's Outfit</button>
+        </div>
+        <div id="outfitLogList"><div class="empty-state">No outfits logged yet</div></div>
+      </div>
+    </div>
+
+    <!-- Analytics View -->
+    <div id="wtab-analytics" class="wardrobe-panel hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="glass-card">
+          <div class="card-title">Most Worn Items</div>
+          <div id="mostWornList"><div class="empty-state-sm">No data yet</div></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Least Worn Items</div>
+          <div id="leastWornList"><div class="empty-state-sm">No data yet</div></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Category Breakdown</div>
+          <div id="categoryBreakdown"><div class="empty-state-sm">No data yet</div></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Outfit Frequency</div>
+          <div id="outfitFrequency"><div class="empty-state-sm">Log outfits to see trends</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SPLITWISE ══ -->
+  <section class="tab-section hidden" id="tab-splitwise">
+
+    <!-- Sub-nav + Add Friend -->
+    <div class="glass-card sw-subnav">
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="sw-tab-btn active" data-sw-tab="overview">◈ Overview</button>
+        <button class="sw-tab-btn" data-sw-tab="history">▤ History</button>
+        <button class="sw-tab-btn" data-sw-tab="statistics">◑ Statistics</button>
+        <button class="sw-tab-btn" data-sw-tab="qr-settings">◇ Settings</button>
+      </div>
+      <button class="btn-primary" id="swAddFriendBtn" style="padding:.5rem 1.15rem;font-size:.82rem">+ Add Friend</button>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="kpi-grid" id="swKpiGrid" style="grid-template-columns:repeat(auto-fill,minmax(138px,1fr));margin-bottom:1.25rem">
+      <div class="kpi-card accent-red" style="padding:1.1rem 1rem">
+        <div class="kpi-label">I Owe</div>
+        <div class="kpi-value" id="swKpiIOwe" style="font-size:1.5rem">₹0</div>
+      </div>
+      <div class="kpi-card accent-green" style="padding:1.1rem 1rem">
+        <div class="kpi-label">I'm Owed</div>
+        <div class="kpi-value" id="swKpiOwed" style="font-size:1.5rem">₹0</div>
+      </div>
+      <div class="kpi-card accent-blue" style="padding:1.1rem 1rem">
+        <div class="kpi-label">Net Balance</div>
+        <div class="kpi-value" id="swKpiNet" style="font-size:1.5rem">₹0</div>
+      </div>
+      <div class="kpi-card accent-purple" style="padding:1.1rem 1rem">
+        <div class="kpi-label">Friends</div>
+        <div class="kpi-value" id="swKpiFriends" style="font-size:1.5rem">0</div>
+      </div>
+      <div class="kpi-card accent-orange" style="padding:1.1rem 1rem">
+        <div class="kpi-label">Expenses</div>
+        <div class="kpi-value" id="swKpiExpenses" style="font-size:1.5rem">0</div>
+      </div>
+      <div class="kpi-card accent-green" style="padding:1.1rem 1rem">
+        <div class="kpi-label">Settlements</div>
+        <div class="kpi-value" id="swKpiSettlements" style="font-size:1.5rem">0</div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW VIEW ── -->
+    <div class="sw-view" id="swView-overview">
+      <div class="glass-card sw-toolbar" style="margin-bottom:1rem">
+        <input class="form-control" type="text" id="swSearch" placeholder="Search friends..." style="flex:1;min-width:150px;margin:0" />
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap">
+          <button class="sw-filter-pill active" data-filter="all">All</button>
+          <button class="sw-filter-pill" data-filter="owes-me">Owes Me</button>
+          <button class="sw-filter-pill" data-filter="i-owe">I Owe</button>
+          <button class="sw-filter-pill" data-filter="settled">Settled</button>
+        </div>
+      </div>
+      <div id="swFriendsList"></div>
+    </div>
+
+    <!-- ── HISTORY VIEW ── -->
+    <div class="sw-view hidden" id="swView-history">
+      <div class="glass-card" style="padding:.75rem 1.25rem;margin-bottom:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+        <input class="form-control" type="text" id="swHistorySearch" placeholder="Search title, friend, receipt #..." style="flex:1;min-width:160px;margin:0" />
+        <select class="form-control" id="swHistoryPeriod" style="width:auto;min-width:140px;margin:0">
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="month">This Month</option>
+          <option value="lastmonth">Last Month</option>
+        </select>
+        <select class="form-control" id="swHistoryType" style="width:auto;min-width:130px;margin:0">
+          <option value="all">All Types</option>
+          <option value="expense">Expenses</option>
+          <option value="settlement">Settlements</option>
+        </select>
+      </div>
+      <div id="swHistoryList"></div>
+    </div>
+
+    <!-- ── STATISTICS VIEW ── -->
+    <div class="sw-view hidden" id="swView-statistics">
+      <div class="sw-charts-grid">
+        <div class="glass-card">
+          <div class="card-title">Monthly Expenses</div>
+          <canvas id="swChartMonthly" height="200"></canvas>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Money Flow</div>
+          <canvas id="swChartFlow" height="200"></canvas>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Payment Modes</div>
+          <canvas id="swChartModes" height="200"></canvas>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Balance by Friend</div>
+          <canvas id="swChartFriends" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS VIEW ── -->
+    <div class="sw-view hidden" id="swView-qr-settings">
+      <div class="glass-card">
+        <div class="card-title">Receipt &amp; QR Settings</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem">
+          <div>
+            <label style="font-size:.74rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em">Name / Business</label>
+            <input class="form-control" type="text" id="swQrName" placeholder="e.g. John Doe" />
+          </div>
+          <div>
+            <label style="font-size:.74rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em">UPI ID</label>
+            <input class="form-control" type="text" id="swQrUpi" placeholder="e.g. john@paytm" />
+          </div>
+          <div>
+            <label style="font-size:.74rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em">Phone</label>
+            <input class="form-control" type="tel" id="swQrPhone" placeholder="e.g. 9876543210" />
+          </div>
+          <div>
+            <label style="font-size:.74rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em">Address (optional)</label>
+            <input class="form-control" type="text" id="swQrAddress" placeholder="Your address" />
+          </div>
+        </div>
+        <div style="margin-top:.75rem">
+          <label style="font-size:.74rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em">Receipt Footer</label>
+          <input class="form-control" type="text" id="swQrFooter" placeholder="e.g. Thank you for your payment!" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.5rem">
+          <div>
+            <div style="font-size:.74rem;color:var(--text-muted);font-weight:600;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">QR Code Image</div>
+            <div class="sw-img-upload-zone" id="swQrDropzone">
+              <img id="swQrPreview" class="sw-img-preview" style="display:none" alt="QR" />
+              <div id="swQrUploadHint">
+                <div style="font-size:2rem;margin-bottom:.4rem;opacity:.5">⬆</div>
+                <div style="font-size:.78rem;color:var(--text-muted)">Click to upload QR image</div>
+                <div style="font-size:.7rem;color:var(--text-dim);margin-top:.2rem">PNG · JPG · WEBP</div>
+              </div>
+            </div>
+            <input type="file" id="swQrFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" />
+            <div style="display:flex;gap:.5rem;margin-top:.6rem">
+              <button class="btn-sm btn-outline" id="swQrReplaceBtn">Replace</button>
+              <button class="btn-sm btn-outline" id="swQrDeleteBtn" style="color:var(--danger)">Delete</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:.74rem;color:var(--text-muted);font-weight:600;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Signature (optional)</div>
+            <div class="sw-img-upload-zone" id="swSigDropzone">
+              <img id="swSigPreview" class="sw-img-preview" style="display:none" alt="Signature" />
+              <div id="swSigUploadHint">
+                <div style="font-size:2rem;margin-bottom:.4rem;opacity:.5">✍</div>
+                <div style="font-size:.78rem;color:var(--text-muted)">Click to upload signature</div>
+                <div style="font-size:.7rem;color:var(--text-dim);margin-top:.2rem">PNG · JPG · WEBP</div>
+              </div>
+            </div>
+            <input type="file" id="swSigFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" />
+            <div style="display:flex;gap:.5rem;margin-top:.6rem">
+              <button class="btn-sm btn-outline" id="swSigReplaceBtn">Replace</button>
+              <button class="btn-sm btn-outline" id="swSigDeleteBtn" style="color:var(--danger)">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+          <button class="btn-primary" id="swSaveSettingsBtn">Save Settings</button>
+          <button class="btn-sm btn-outline" id="swExportJsonBtn">Export JSON</button>
+          <button class="btn-sm btn-outline" id="swExportCsvBtn">Export CSV</button>
+          <button class="btn-sm btn-outline" id="swImportJsonBtn">Import JSON</button>
+          <input type="file" id="swImportFileInput" accept=".json" style="display:none" />
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══ NOTES ══ -->
+  <section class="tab-section hidden" id="tab-notes">
+    <!-- Home view -->
+    <div id="notesHomeView"></div>
+    <!-- Editor view -->
+    <div id="notesEditorView" class="hidden"></div>
+  </section>
+
+</main>
+
+<!-- ══ ADD CLOTHING MODAL ══ -->
+<div class="modal-overlay hidden" id="addClothingModal">
+  <div class="modal-box" style="width:min(520px,94vw)">
+    <div class="modal-title">Add Clothing Item</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <input class="form-control" type="text" id="clothingName" placeholder="Name (e.g. White Oxford Shirt)" />
+      <select class="form-control" id="clothingCategory">
+        <option value="tshirt">T-Shirt</option><option value="shirt">Shirt</option>
+        <option value="hoodie">Hoodie</option><option value="jacket">Jacket</option>
+        <option value="jeans">Jeans</option><option value="trousers">Trousers</option>
+        <option value="joggers">Joggers</option><option value="shorts">Shorts</option>
+        <option value="shoes">Shoes</option><option value="accessories">Accessories</option>
+        <option value="watch">Watch</option><option value="perfume">Perfume</option>
+      </select>
+      <input class="form-control" type="text" id="clothingBrand" placeholder="Brand" />
+      <input class="form-control" type="text" id="clothingColor" placeholder="Color (e.g. Navy Blue)" />
+      <select class="form-control" id="clothingSeason">
+        <option value="all">All Season</option><option value="summer">Summer</option>
+        <option value="winter">Winter</option><option value="monsoon">Monsoon</option>
+      </select>
+      <select class="form-control" id="clothingFit">
+        <option value="regular">Regular</option><option value="slim">Slim</option>
+        <option value="oversized">Oversized</option><option value="relaxed">Relaxed</option>
+      </select>
+    </div>
+    <input class="form-control" type="text" id="clothingTags" placeholder="Tags (comma separated, e.g. casual, college)" style="margin-top:.5rem"/>
+    <!-- Image picker -->
+    <div style="margin-top:.85rem">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:.5rem">Photo</div>
+      <div class="wardrobe-img-preview" id="wardrobeImgPreview">
+        <span id="wardrobeImgPlaceholder" style="font-size:.8rem;color:var(--text-dim)">No photo selected</span>
+        <img id="wardrobeImgPreviewImg" style="display:none;max-height:130px;max-width:100%;border-radius:var(--radius-sm);object-fit:cover" alt="Preview" />
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+        <button type="button" class="btn-sm btn-outline" id="wardrobeUploadBtn">⬆ Upload</button>
+        <button type="button" class="btn-sm btn-outline" id="wardrobeCameraBtn">📷 Camera</button>
+        <button type="button" class="btn-sm btn-outline" id="wardrobeRemoveImgBtn" style="color:var(--danger);border-color:rgba(255,59,48,0.3)">✕ Remove</button>
+      </div>
+      <input type="file" id="wardrobeFileInput" accept="image/*" style="display:none" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveClothingBtn">Add Item</button>
+      <button class="btn-outline-sm" id="cancelClothingBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BUILD OUTFIT MODAL ══ -->
+<div class="modal-overlay hidden" id="buildOutfitModal">
+  <div class="modal-box" style="width:min(580px,94vw)">
+    <div class="modal-title">Build Outfit</div>
+    <input class="form-control" type="text" id="outfitName" placeholder="Outfit name (e.g. College Monday)" />
+    <input class="form-control" type="text" id="outfitOccasion" placeholder="Occasion (e.g. college, casual, gym)" style="margin-top:.5rem"/>
+    <div style="margin:.85rem 0 .4rem;font-size:.82rem;color:var(--text-muted);font-weight:500">Select items for this outfit:</div>
+    <div id="outfitItemSelector" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem;max-height:220px;overflow-y:auto;padding:.25rem"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveOutfitBtn">Save Outfit</button>
+      <button class="btn-outline-sm" id="cancelOutfitBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOG OUTFIT MODAL ══ -->
+<div class="modal-overlay hidden" id="logOutfitModal">
+  <div class="modal-box">
+    <div class="modal-title">Log Outfit</div>
+    <input class="form-control" type="date" id="outfitLogDate" />
+    <select class="form-control" id="outfitLogSelect" style="margin-top:.5rem">
+      <option value="">Select saved outfit...</option>
+    </select>
+    <input class="form-control" type="text" id="outfitLogNotes" placeholder="Notes (optional)" style="margin-top:.5rem"/>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveOutfitLogBtn">Log</button>
+      <button class="btn-outline-sm" id="cancelOutfitLogBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD SUBJECT MODAL ══ -->
+<div class="modal-overlay hidden" id="addSubjectModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Subject</div>
+    <input class="form-control" type="text" id="subjectName" placeholder="Subject name (e.g. Theory of Machines)" />
+    <input class="form-control" type="text" id="subjectShort" placeholder="Short name (e.g. TOM)" />
+    <input class="form-control" type="text" id="subjectProf" placeholder="Professor name" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <input class="form-control" type="number" id="subjectRequired" placeholder="Required % (e.g. 75)" value="75" />
+      <select class="form-control" id="subjectColor">
+        <option value="#32d74b">Green</option>
+        <option value="#0a84ff">Blue</option>
+        <option value="#ff9f0a">Orange</option>
+        <option value="#bf5af2">Purple</option>
+        <option value="#ff2d55">Red</option>
+        <option value="#ffd60a">Yellow</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveSubjectBtn">Add Subject</button>
+      <button class="btn-outline-sm" id="cancelSubjectBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOG LECTURE MODAL ══ -->
+<div class="modal-overlay hidden" id="logLectureModal">
+  <div class="modal-box">
+    <div class="modal-title">Log Lecture</div>
+    <select class="form-control" id="logSubjectSel"></select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <select class="form-control" id="logStatus">
+        <option value="present">✓ Present</option>
+        <option value="absent">✗ Absent</option>
+      </select>
+      <select class="form-control" id="logLectureType">
+        <option value="theory">Theory</option>
+        <option value="lab">Lab</option>
+        <option value="tutorial">Tutorial</option>
+      </select>
+    </div>
+    <input class="form-control" type="date" id="logDate" />
+    <input class="form-control" type="text" id="logNotes" placeholder="Notes (optional)" />
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveLogBtn">Log</button>
+      <button class="btn-outline-sm" id="cancelLogBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD TASK MODAL ══ -->
+<div class="modal-overlay hidden" id="addTaskModal">
+  <div class="modal-box">
+    <div class="modal-title" id="taskModalTitle">Add Task</div>
+    <input class="form-control" type="text" id="taskTitle" placeholder="Task title" />
+    <textarea class="form-control" id="taskDescription" placeholder="Description (optional)" rows="2" style="resize:vertical"></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <select class="form-control" id="taskPriority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+      <select class="form-control" id="taskStatus">
+        <option value="backlog">Backlog</option>
+        <option value="today">Today</option>
+        <option value="in-progress">In Progress</option>
+      </select>
+    </div>
+    <input class="form-control" type="text" id="taskTags" placeholder="Tags (comma separated, e.g. college, urgent)" />
+    <input class="form-control" type="date" id="taskDeadline" />
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveTaskBtn">Add Task</button>
+      <button class="btn-outline-sm" id="cancelTaskBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMMAND PALETTE ══ -->
+<div class="modal-overlay hidden" id="cmdPalette" style="align-items:flex-start;padding-top:12vh">
+  <div class="modal-box" style="width:min(560px,94vw);gap:.5rem;padding:0;overflow:hidden">
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem">
+      <span style="color:var(--text-muted);font-size:1rem">⌘</span>
+      <input type="text" id="cmdInput" placeholder="Search or jump to anything..." style="flex:1;background:none;border:none;outline:none;font-size:.95rem;color:var(--text-primary);font-family:var(--font-body)" />
+      <kbd style="font-size:.7rem;padding:.2rem .45rem;border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-family:var(--font-mono)">ESC</kbd>
+    </div>
+    <div id="cmdResults" style="max-height:340px;overflow-y:auto;padding:.5rem"></div>
+  </div>
+</div>
+
+<!-- ══ NOTIFICATION TRAY ══ -->
+<div id="notifTray" style="position:fixed;top:1.25rem;right:1.25rem;z-index:1800;display:flex;flex-direction:column;gap:.5rem;pointer-events:none"></div>
+
+<!-- ══ FLOATING ACTION BUTTON ══ -->
+<button id="fabBtn" title="Quick Add" style="position:fixed;bottom:90px;right:1.5rem;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),rgba(50,215,75,0.7));border:none;color:#0b0b0f;font-size:1.5rem;cursor:pointer;box-shadow:0 8px 24px rgba(50,215,75,0.35);z-index:300;display:flex;align-items:center;justify-content:center;transition:var(--transition)">+</button>
+
+<!-- ══ EDIT FOOD MODAL ══ -->
+<div class="modal-overlay hidden" id="editFoodModal">
+  <div class="modal-box">
+    <div class="modal-title">Edit Food</div>
+    <input class="form-control" type="text" id="editFoodName" placeholder="Food name" />
+    <input class="form-control" type="text" id="editFoodQty" placeholder="Quantity" />
+    <input class="form-control" type="number" id="editFoodCal" placeholder="Calories" />
+    <input class="form-control" type="number" id="editFoodPro" placeholder="Protein (g)" />
+    <input class="form-control" type="number" id="editFoodCarb" placeholder="Carbs (g)" />
+    <input class="form-control" type="number" id="editFoodFat" placeholder="Fat (g)" />
+    <div class="modal-actions">
+      <button class="btn-primary" id="editFoodSave">Save</button>
+      <button class="btn-outline-sm" id="editFoodCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SW ADD FRIEND MODAL ══ -->
+<div class="modal-overlay hidden" id="swAddFriendModal">
+  <div class="modal-box">
+    <div class="modal-title" id="swFriendModalTitle">Add Friend</div>
+    <input class="form-control" type="text" id="swFriendName" placeholder="Name *" />
+    <input class="form-control" type="tel" id="swFriendPhone" placeholder="Phone (optional)" style="margin-top:.5rem" />
+    <textarea class="form-control" id="swFriendNotes" placeholder="Notes (optional)" rows="2" style="margin-top:.5rem;resize:vertical"></textarea>
+    <div class="modal-actions">
+      <button class="btn-primary" id="swSaveFriendBtn">Add Friend</button>
+      <button class="btn-outline-sm" id="swCancelFriendBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SW ADD EXPENSE MODAL ══ -->
+<div class="modal-overlay hidden" id="swAddExpenseModal">
+  <div class="modal-box" style="width:min(520px,95vw)">
+    <div class="modal-title">Add Expense</div>
+    <input class="form-control" type="text" id="swExpTitle" placeholder="Expense title (e.g. Lunch, Movie)" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.5rem">
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Amount (₹)</label>
+        <input class="form-control" type="number" id="swExpAmount" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Paid By</label>
+        <select class="form-control" id="swExpPaidBy">
+          <option value="me">Me</option>
+          <option value="friend">Friend</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Split Type</label>
+        <select class="form-control" id="swExpSplitType">
+          <option value="equal">Equal (50/50)</option>
+          <option value="exact">Exact Amount</option>
+          <option value="percentage">Percentage</option>
+        </select>
+      </div>
+      <div id="swExpSplitValueWrap" style="display:none">
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em" id="swExpSplitValueLabel">Other's Share (₹)</label>
+        <input class="form-control" type="number" id="swExpSplitValue" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Date</label>
+        <input class="form-control" type="date" id="swExpDate" />
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Friend</label>
+        <select class="form-control" id="swExpFriend"></select>
+      </div>
+    </div>
+    <textarea class="form-control" id="swExpNotes" placeholder="Notes (optional)" rows="2" style="margin-top:.5rem;resize:vertical"></textarea>
+    <div style="margin-top:.6rem">
+      <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.05em">Attachment (optional image or PDF)</label>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <button class="btn-sm btn-outline" type="button" id="swExpAttachBtn">📎 Attach</button>
+        <span id="swExpAttachmentName" style="font-size:.75rem;color:var(--text-muted)">No file selected</span>
+        <input type="file" id="swExpAttachment" accept="image/*,application/pdf" style="display:none" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="swSaveExpenseBtn">Add Expense</button>
+      <button class="btn-outline-sm" id="swCancelExpenseBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SW SETTLE UP MODAL ══ -->
+<div class="modal-overlay hidden" id="swSettleModal">
+  <div class="modal-box">
+    <div class="modal-title" id="swSettleTitle">Settle Up</div>
+    <div id="swSettleBalanceInfo" style="padding:.65rem 1rem;background:var(--surface-mid);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:.84rem;color:var(--text-secondary);margin-bottom:.85rem"></div>
+    <div>
+      <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Amount (₹)</label>
+      <input class="form-control" type="number" id="swSettleAmount" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.5rem">
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Paid By</label>
+        <select class="form-control" id="swSettlePaidBy">
+          <option value="friend">Friend paid me</option>
+          <option value="me">I paid friend</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Payment Mode</label>
+        <select class="form-control" id="swSettleMode">
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+          <option value="bank">Bank Transfer</option>
+          <option value="card">Card</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Date</label>
+        <input class="form-control" type="date" id="swSettleDate" />
+      </div>
+      <div>
+        <label style="font-size:.72rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.05em">Remarks</label>
+        <input class="form-control" type="text" id="swSettleRemarks" placeholder="Optional" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="swSaveSettleBtn">Record Settlement</button>
+      <button class="btn-outline-sm" id="swCancelSettleBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SW FRIEND DETAIL MODAL ══ -->
+<div class="modal-overlay hidden" id="swFriendDetailModal">
+  <div class="modal-box" style="width:min(680px,96vw);max-height:88vh;overflow-y:auto">
+    <div id="swFriendDetailContent"></div>
+  </div>
+</div>
+
+<!-- ══ SW RECEIPT MODAL ══ -->
+<div class="modal-overlay hidden" id="swReceiptModal">
+  <div class="modal-box" style="width:min(460px,96vw);max-height:90vh;overflow-y:auto">
+    <div class="modal-title">Payment Receipt</div>
+    <div id="swReceiptContent"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="swReceiptPrintBtn">🖨 Print</button>
+      <button class="btn-sm btn-outline" id="swReceiptDownloadBtn">⬇ PDF</button>
+      <button class="btn-sm btn-outline" id="swReceiptDownloadJpgBtn">🖼 JPG</button>
+      <button class="btn-outline-sm" id="swReceiptCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CAMERA CAPTURE MODAL ══ -->
+<div class="modal-overlay hidden" id="cameraModal">
+  <div class="modal-box camera-modal-box">
+    <div class="camera-modal-header">
+      <span class="modal-title" style="margin:0">Camera</span>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button id="cameraSwitchBtn" class="btn-sm btn-outline" title="Switch camera">↔ Switch</button>
+        <button id="cameraCancelBtn" class="btn-icon" style="font-size:1.1rem;width:32px;height:32px">✕</button>
+      </div>
+    </div>
+    <div class="camera-viewport">
+      <video id="cameraPreview" autoplay playsinline muted></video>
+      <canvas id="cameraCanvas" style="display:none"></canvas>
+      <img id="capturedPreview" class="captured-preview" style="display:none" alt="Captured photo" />
+    </div>
+    <div class="camera-controls">
+      <button id="cameraCaptureBtn" class="btn-primary camera-shutter-btn">📷 Capture</button>
+      <button id="cameraRetakeBtn" class="btn-outline hidden">↩ Retake</button>
+      <button id="cameraUseBtn" class="btn-sm btn-green hidden">✓ Use Photo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ NOTES: AUDIO RECORD MODAL ══ -->
+<div class="hidden" id="notesAudioModal">
+  <div class="notes-audio-box">
+    <div style="font-size:1rem;font-weight:600;color:var(--text-primary)">🎙 Record Audio Note</div>
+    <div id="notesAudioTimer">00:00</div>
+    <p style="font-size:.75rem;color:var(--text-muted);margin:.2rem 0 0">Max 3 minutes</p>
+    <div class="notes-audio-btns">
+      <button class="btn-primary" id="notesAudioRecordBtn" style="font-size:.82rem">● Start</button>
+      <button class="btn-outline" id="notesAudioStopBtn" style="display:none;font-size:.82rem;border-color:var(--danger);color:var(--danger)">■ Stop &amp; Insert</button>
+      <button class="btn-outline" id="notesAudioCancelBtn" style="font-size:.82rem">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

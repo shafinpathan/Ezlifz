@@ -1,0 +1,206 @@
+/* ════════════════════════════════════════════
+   Ezlifz — Apple Fitness Design System
+   Apple Glassmorphism · Spatial Depth · iOS 18
+════════════════════════════════════════════ */
+
+:root {
+  /* Apple Activity Colors */
+  --move:    #ff2d55;
+  --exercise:#b4ff00;
+  --stand:   #32d74b;
+
+  /* Surface System */
+  --bg-primary:   #0b0b0f;
+  --bg-secondary: rgba(28,28,30,0.55);
+  --bg-card:      rgba(28,28,30,0.55);
+  --bg-card-2:    rgba(36,36,38,0.60);
+  --bg-hover:     rgba(44,44,46,0.70);
+
+  --surface-light: rgba(255,255,255,0.08);
+  --surface-mid:   rgba(255,255,255,0.05);
+  --surface-soft:  rgba(255,255,255,0.03);
+
+  /* Glass borders */
+  --border:       rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.12);
+
+  /* Text */
+  --text-primary:   #ffffff;
+  --text-secondary: rgba(255,255,255,0.68);
+  --text-muted:     rgba(255,255,255,0.42);
+  --text-dim:       rgba(255,255,255,0.22);
+
+  /* Accent Colors — Apple palette */
+  --accent-green:  #32d74b;
+  --accent-blue:   #0a84ff;
+  --accent-orange: #ff9f0a;
+  --accent-purple: #bf5af2;
+  --accent-red:    #ff3b30;
+  --accent-yellow: #ffd60a;
+  --danger:        #ff3b30;
+
+  /* Layout */
+  --sidebar-w: 240px;
+  --radius:    28px;
+  --radius-sm: 16px;
+  --radius-xs: 12px;
+
+  /* Shadows */
+  --shadow:    0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+  --glow-move:    0 0 40px rgba(255,45,85,0.25);
+  --glow-stand:   0 0 40px rgba(50,215,75,0.20);
+  --glow-blue:    0 0 40px rgba(10,132,255,0.20);
+
+  /* Motion */
+  --spring: cubic-bezier(.22,1,.36,1);
+  --ease:   cubic-bezier(.4,0,.2,1);
+  --transition: transform 0.45s var(--spring), opacity 0.3s var(--ease), background 0.3s var(--ease), box-shadow 0.45s var(--ease);
+
+  /* Typography */
+  --font-head: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+}
+
+/* ── Light Theme ─────────────────────────── */
+.light-theme {
+  --bg-primary:   #f2f2f7;
+  --bg-card:      rgba(255,255,255,0.82);
+  --bg-card-2:    rgba(242,242,247,0.90);
+  --bg-hover:     rgba(220,220,225,0.90);
+  --surface-light: rgba(0,0,0,0.05);
+  --surface-mid:   rgba(0,0,0,0.04);
+  --surface-soft:  rgba(0,0,0,0.025);
+  --border:       rgba(0,0,0,0.10);
+  --border-light: rgba(0,0,0,0.15);
+  --text-primary:   #1c1c1e;
+  --text-secondary: rgba(0,0,0,0.65);
+  --text-muted:     rgba(0,0,0,0.45);
+  --text-dim:       rgba(0,0,0,0.28);
+  --shadow:    0 8px 32px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.light-theme body {
+  background: radial-gradient(circle at top left,  rgba(255,45,85,0.06),  transparent 30%),
+              radial-gradient(circle at bottom right, rgba(50,215,75,0.05), transparent 30%),
+              #f2f2f7;
+}
+
+/* Sidebar & nav — override hardcoded dark backgrounds */
+.light-theme .sidebar {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+}
+
+.light-theme .bottom-nav {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.light-theme .bn-item {
+  color: rgba(0,0,0,0.45);
+}
+.light-theme .bn-item.active {
+  color: #1c1c1e;
+  background: rgba(0,0,0,0.07);
+}
+
+.light-theme .nav-item {
+  color: rgba(0,0,0,0.45);
+}
+.light-theme .nav-item:hover {
+  background: rgba(0,0,0,0.05);
+  color: #1c1c1e;
+}
+.light-theme .nav-item.active {
+  color: #1c1c1e;
+  background: rgba(50,215,75,0.10);
+}
+
+/* Modal boxes */
+.light-theme .modal-box {
+  background: rgba(255,255,255,0.96);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+/* More sheet */
+.light-theme .more-sheet-box {
+  background: rgba(255,255,255,0.96);
+}
+
+/* Brand name in sidebar */
+.light-theme .brand-name {
+  color: #1c1c1e;
+}
+.light-theme .streak-pill {
+  background: rgba(255,214,10,0.12);
+  border-color: rgba(180,140,0,0.20);
+  color: #8a6800;
+}
+
+/* Form controls */
+.light-theme .form-control {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.12);
+  color: #1c1c1e;
+}
+.light-theme .form-control:focus {
+  background: rgba(255,255,255,0.9);
+  border-color: var(--accent-blue);
+}
+.light-theme .form-control::placeholder {
+  color: rgba(0,0,0,0.32);
+}
+
+/* Search inputs */
+.light-theme .search-input {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.10);
+  color: #1c1c1e;
+}
+
+/* Select option backgrounds */
+.light-theme select.form-control option {
+  background: #ffffff;
+  color: #1c1c1e;
+}
+
+/* Toast — keep dark for contrast */
+.light-theme .toast {
+  background: rgba(28,28,30,0.92);
+  color: #fff;
+  border-color: rgba(0,0,0,0.15);
+}
+
+/* Glass card glass-border in light mode */
+.light-theme .glass-card {
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* Btn outline in light mode */
+.light-theme .btn-outline,
+.light-theme .btn-outline-sm {
+  border-color: rgba(0,0,0,0.18);
+  color: var(--text-primary);
+}
+.light-theme .btn-outline:hover,
+.light-theme .btn-outline-sm:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+/* Pill/tag items */
+.light-theme .more-sheet-item {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.65);
+}
+.light-theme .more-sheet-item:hover {
+  background: rgba(0,0,0,0.08);
+  color: #1c1c1e;
+}

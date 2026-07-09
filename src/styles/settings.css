@@ -1,0 +1,67 @@
+/* ── Settings ─────────────────────────────── */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.settings-form { display: flex; flex-direction: column; gap: .85rem; }
+
+.setting-row { display: flex; flex-direction: column; gap: .4rem; }
+
+.setting-row label {
+  font-size: .82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.toggle-row { flex-direction: row; align-items: center; justify-content: space-between; }
+.toggle-wrap { position: relative; }
+.toggle-input { display: none; }
+
+.toggle-label {
+  display: block;
+  width: 48px; height: 28px;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+
+.toggle-label::after {
+  content: '';
+  position: absolute;
+  width: 22px; height: 22px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.toggle-input:checked + .toggle-label {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  box-shadow: 0 0 12px rgba(50,215,75,0.3);
+}
+
+.toggle-input:checked + .toggle-label::after {
+  left: 24px;
+  background: #0b0b0f;
+}
+
+.danger-zone {
+  border-color: rgba(255,59,48,0.18) !important;
+  background: rgba(255,59,48,0.03) !important;
+}
+
+@media (max-width: 1200px) {
+  .settings-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .settings-grid { grid-template-columns: 1fr; }
+}

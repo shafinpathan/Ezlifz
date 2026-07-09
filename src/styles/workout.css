@@ -1,0 +1,226 @@
+/* ── Workout ──────────────────────────────── */
+.workout-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 1.75rem;
+}
+
+.wh-left { display: flex; gap: .75rem; flex: 1; flex-wrap: wrap; }
+
+.wh-right {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: var(--surface-light);
+  padding: .5rem .75rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.timer-display {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--accent-green);
+  min-width: 70px;
+  letter-spacing: .02em;
+}
+
+.rest-timer-card { padding: 1.25rem 1.75rem; }
+
+.rest-timer-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+.rest-timer-display {
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+  min-width: 85px;
+  letter-spacing: .02em;
+  text-shadow: 0 0 24px rgba(255,159,10,0.4);
+}
+
+.rest-btns { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.exercise-item {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.exercise-item:last-child { border-bottom: none; }
+.exercise-item:hover { background: var(--surface-soft); }
+
+.ex-info { display: flex; flex-direction: column; gap: .25rem; }
+.ex-name { font-size: .92rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary); }
+.ex-detail { font-family: var(--font-mono); font-size: .78rem; color: var(--text-muted); }
+.ex-notes-text { font-size: .74rem; color: var(--text-dim); font-style: italic; }
+
+.volume-badge {
+  font-family: var(--font-head);
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  background: rgba(255,159,10,0.10);
+  border: 1px solid rgba(255,159,10,0.20);
+  border-radius: 20px;
+  padding: .3rem .85rem;
+  letter-spacing: -0.01em;
+}
+
+.workout-action-row { margin: 1.25rem 0; }
+
+/* ── Workout History ──────────────────────── */
+.history-item {
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: var(--surface-soft); }
+
+.history-date {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--text-muted);
+  min-width: 80px;
+}
+
+.history-name { font-size: .88rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+.history-type { font-size: .74rem; color: var(--text-muted); }
+
+.history-vol {
+  font-family: var(--font-head);
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+}
+
+/* ── Workout Day Presets ──────────────────── */
+.workout-preset-card { margin-bottom: 1.25rem; }
+
+.wday-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin-bottom: 1.1rem;
+}
+
+.wday-btn {
+  padding: .4rem .95rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-light);
+  color: var(--text-muted);
+  font-size: .78rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+}
+
+.wday-btn:hover { border-color: rgba(50,215,75,0.4); color: var(--accent-green); }
+.wday-btn.active {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #0b0b0f;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(50,215,75,0.3);
+}
+
+.wday-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: .85rem;
+  margin-bottom: 1rem;
+}
+
+.wday-muscle-group {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .95rem;
+  backdrop-filter: blur(10px);
+}
+
+.wday-group-name {
+  font-family: var(--font-head);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--accent-green);
+  margin-bottom: .65rem;
+}
+
+.wday-exercise-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: .3rem 0;
+  border-bottom: 1px solid var(--border);
+  gap: .5rem;
+}
+
+.wday-exercise-row:last-child { border-bottom: none; }
+.wday-ex-name { font-size: .8rem; color: var(--text-secondary); flex: 1; letter-spacing: -0.01em; }
+.wday-ex-scheme {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--accent-orange);
+  white-space: nowrap;
+}
+
+.wday-load-btn {
+  padding: .55rem 1.2rem;
+  background: var(--accent-green);
+  color: #0b0b0f;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: .82rem;
+  font-weight: 700;
+  font-family: var(--font-head);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(50,215,75,0.3);
+}
+
+.wday-load-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+.wday-rest-info {
+  padding: 1rem 1.25rem;
+  background: rgba(50,215,75,0.05);
+  border: 1px solid rgba(50,215,75,0.12);
+  border-radius: var(--radius-sm);
+  font-size: .83rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  backdrop-filter: blur(10px);
+}
+
+.wday-rest-info strong { color: var(--accent-green); }
+
+@media (max-width: 768px) {
+  .workout-header-bar { flex-direction: column; }
+  .wh-left { width: 100%; }
+  .wh-right { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .wday-preview { grid-template-columns: 1fr; }
+  .history-item { grid-template-columns: 1fr auto; }
+  .history-type { display: none; }
+}
