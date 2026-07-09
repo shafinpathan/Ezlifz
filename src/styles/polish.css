@@ -92,12 +92,12 @@
 .notes-grid .notes-card:nth-child(6) { animation-delay: 175ms; }
 .notes-grid .notes-card:nth-child(n+7) { animation-delay: 210ms; }
 
-/* Editor slide-up entrance */
+/* Editor entrance — opacity only (transform would break sticky toolbar) */
 @keyframes editorIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-#notesEditorView:not(.hidden) { animation: editorIn .28s var(--spring); }
+#notesEditorView:not(.hidden) { animation: editorIn .25s ease-out; }
 
 /* Smooth chip / pill transitions */
 .notes-chip, .notes-folder-pill, .wday-tab {

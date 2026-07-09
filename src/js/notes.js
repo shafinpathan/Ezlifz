@@ -83,7 +83,6 @@ let _audioChunks = [];
 let _recSeconds  = 0;
 let _recTimer    = null;
 let _autoTimer   = null;
-let _focusMode   = false;
 let _imgInput    = null;
 
 // ═══════════════════════════════════════════════════════════════
@@ -98,6 +97,11 @@ export function initNotes() {
 
 export function renderNotes() {
   if (_view === 'home') _renderHome();
+}
+
+/* Quick-create entry point for the FAB / command palette */
+export function createNewNote() {
+  _createNote();
 }
 
 function _migrate() {
@@ -213,7 +217,6 @@ function _buildEditor() {
       <div class="notes-ed-actions">
         <button class="btn-outline-sm notes-mode-btn active" id="notesTextModeBtn">Text</button>
         <button class="btn-outline-sm notes-mode-btn" id="notesDrawModeBtn">${ICONS.pencil} Draw</button>
-        <button class="btn-outline-sm" id="notesFocusBtn">Focus</button>
         <div class="notes-drop-wrap">
           <button class="btn-outline-sm" id="notesExportBtn">Export</button>
           <div class="notes-drop hidden" id="notesExportMenu">
@@ -496,18 +499,17 @@ function _openEditor(noteId) {
   _updateFooter();
   _exitDraw();
   _applyNoteStyle(note);
+  window.scrollTo({ top: 0 });
   setTimeout(() => document.getElementById('notesEditorArea')?.focus(), 80);
 }
 
 function _closeEditor() {
   _saveNote(false);
   _view = 'home';
-  _focusMode = false;
-  document.body.classList.remove('notes-focus');
-  document.getElementById('notesFocusBtn').textContent = 'Focus';
   document.getElementById('notesHomeView').classList.remove('hidden');
   document.getElementById('notesEditorView').classList.add('hidden');
   _renderHome();
+  window.scrollTo({ top: 0 });
 }
 
 function _createNote() {
@@ -579,14 +581,18 @@ function _wireEditor() {
   if (!el) return;
 
   el.querySelector('#notesBackBtn').addEventListener('click', _closeEditor);
-  el.querySelector('#notesFocusBtn').addEventListener('click', () => {
-    _focusMode = !_focusMode;
-    document.body.classList.toggle('notes-focus', _focusMode);
-    el.querySelector('#notesFocusBtn').textContent = _focusMode ? 'Exit Focus' : 'Focus';
-  });
 
   el.querySelectorAll('[data-cmd]').forEach(btn => {
-    btn.addEventListener('mousedown', e => { e.preventDefault(); document.execCommand(btn.dataset.cmd, false, null); });
+    btn.addEventListener('mousedown', e => {
+      e.preventDefault();
+      document.execCommand(btn.dataset.cmd, false, null);
+      _refreshToolbar();
+    });
+  });
+
+  // Live active-state on format buttons (bold/italic/lists/align)
+  document.addEventListener('selectionchange', () => {
+    if (_view === 'editor' && !_drawMode) _refreshToolbar();
   });
 
   el.querySelector('#notesFmtSel').addEventListener('change', e => {
@@ -632,14 +638,14 @@ function _wireEditor() {
 
   const exportBtn  = el.querySelector('#notesExportBtn');
   const exportMenu = el.querySelector('#notesExportMenu');
-  exportBtn.addEventListener('click', e => { e.stopPropagation(); exportMenu.classList.toggle('hidden'); });
+  exportBtn.addEventListener('click', e => { e.stopPropagation(); exportMenu.classList.toggle('hidden'); _clampMenu(exportMenu); });
   exportMenu.querySelectorAll('[data-export]').forEach(b => {
     b.addEventListener('click', () => { _exportNote(b.dataset.export); exportMenu.classList.add('hidden'); });
   });
 
   const moreBtn  = el.querySelector('#notesMoreBtn');
   const moreMenu = el.querySelector('#notesMoreMenu');
-  moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); });
+  moreBtn.addEventListener('click', e => { e.stopPropagation(); moreMenu.classList.toggle('hidden'); _clampMenu(moreMenu); });
   moreMenu.querySelectorAll('[data-action]').forEach(b => {
     b.addEventListener('click', () => { _noteAction(b.dataset.action); moreMenu.classList.add('hidden'); });
   });
@@ -655,6 +661,33 @@ function _wireEditor() {
     const bid = e.target.closest('[data-bid]');
     if (bid) { const n = _find(_noteId); if (n) { n.background = bid.dataset.bid; autoSave(); _applyNoteStyle(n); } }
   });
+}
+
+/* Reflect active formats at the caret onto the toolbar buttons */
+const _STATE_CMDS = ['bold','italic','underline','strikeThrough',
+  'insertUnorderedList','insertOrderedList','justifyLeft','justifyCenter','justifyRight'];
+
+function _refreshToolbar() {
+  const tb = document.getElementById('notesFmtTb');
+  if (!tb || tb.classList.contains('hidden')) return;
+  _STATE_CMDS.forEach(cmd => {
+    const btn = tb.querySelector(`[data-cmd="${cmd}"]`);
+    if (!btn) return;
+    let on = false;
+    try { on = document.queryCommandState(cmd); } catch { /* unsupported */ }
+    btn.classList.toggle('is-on', on);
+  });
+}
+
+/* Keep dropdown menus inside the viewport (mobile) */
+function _clampMenu(menu) {
+  if (menu.classList.contains('hidden')) return;
+  menu.style.transform = '';
+  const r = menu.getBoundingClientRect();
+  let dx = 0;
+  if (r.left < 8) dx = 8 - r.left;
+  else if (r.right > window.innerWidth - 8) dx = (window.innerWidth - 8) - r.right;
+  if (dx) menu.style.transform = `translateX(${dx}px)`;
 }
 
 function _handleKey(e) {
@@ -731,7 +764,8 @@ function _enterDraw() {
   document.getElementById('notesFmtTb').classList.add('hidden');
   document.getElementById('notesTextModeBtn').classList.remove('active');
   document.getElementById('notesDrawModeBtn').classList.add('active');
-  _initCanvas();
+  // Size the canvas after layout settles so clientWidth/Height are real
+  requestAnimationFrame(() => _initCanvas());
 }
 
 function _exitDraw() {
@@ -761,9 +795,15 @@ function _initCanvas() {
     return { x: (ev.clientX - r.left) * (c.width / r.width), y: (ev.clientY - r.top) * (c.height / r.height) };
   };
 
-  const onDown = e => { e.preventDefault(); _isDrawing = true; _curStroke = { tool: _drawTool, color: _drawColor, size: _drawSize, opacity: _drawOpacity, points: [pos(e, canvas)] }; };
+  const onDown = e => {
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch { /* mouse fallback */ }
+    _isDrawing = true;
+    _curStroke = { tool: _drawTool, color: _drawColor, size: _drawSize, opacity: _drawOpacity, points: [pos(e, canvas)] };
+    _redraw(canvas, ctx);
+  };
   const onMove = e => { e.preventDefault(); if (!_isDrawing || !_curStroke) return; _curStroke.points.push(pos(e, canvas)); _redraw(canvas, ctx); };
-  const onUp   = e => { e.preventDefault(); if (!_isDrawing) return; _isDrawing = false; if (_curStroke?.points.length) { _strokes.push(_curStroke); _redoStack = []; } _curStroke = null; _schedSave(); };
+  const onUp   = e => { e.preventDefault(); if (!_isDrawing) return; _isDrawing = false; if (_curStroke?.points.length) { _strokes.push(_curStroke); _redoStack = []; } _curStroke = null; _redraw(canvas, ctx); _schedSave(); };
 
   canvas.removeEventListener('pointerdown', canvas._od); canvas.removeEventListener('pointermove', canvas._om); canvas.removeEventListener('pointerup', canvas._ou); canvas.removeEventListener('pointerleave', canvas._ou);
   canvas._od = onDown; canvas._om = onMove; canvas._ou = onUp;
@@ -781,13 +821,21 @@ function _redraw(canvas, ctx) {
     ctx.strokeStyle = s.tool === 'eraser' ? 'rgba(0,0,0,1)' : s.color;
     ctx.lineWidth   = s.tool === 'eraser' ? s.size * 3 : s.tool === 'marker' ? s.size * 2 : s.tool === 'highlighter' ? s.size * 4 : s.size;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(s.points[0].x, s.points[0].y);
-    for (let i = 1; i < s.points.length; i++) {
-      const m = { x: (s.points[i-1].x + s.points[i].x) / 2, y: (s.points[i-1].y + s.points[i].y) / 2 };
-      ctx.quadraticCurveTo(s.points[i-1].x, s.points[i-1].y, m.x, m.y);
+    if (s.points.length === 1) {
+      // Single tap → visible dot
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath();
+      ctx.arc(s.points[0].x, s.points[0].y, ctx.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(s.points[0].x, s.points[0].y);
+      for (let i = 1; i < s.points.length; i++) {
+        const m = { x: (s.points[i-1].x + s.points[i].x) / 2, y: (s.points[i-1].y + s.points[i].y) / 2 };
+        ctx.quadraticCurveTo(s.points[i-1].x, s.points[i-1].y, m.x, m.y);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
     ctx.restore();
   });
 }

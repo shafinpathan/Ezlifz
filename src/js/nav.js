@@ -7,7 +7,7 @@ import { renderWardrobe } from './wardrobe.js';
 import { renderAIFeedback, setAIDeps } from './ai.js';
 import { renderProgressCharts } from './progress.js';
 import { renderSplitwise, openAddExpenseModal } from './splitwise.js';
-import { renderNotes } from './notes.js';
+import { renderNotes, createNewNote } from './notes.js';
 
 export function initNav() {
   setAIDeps({ switchTab });
@@ -58,6 +58,7 @@ export function initFab() {
     else if (tab === 'todo') { openAddTaskModal(null); }
     else if (tab === 'metrics') { document.getElementById('mWeight').focus(); }
     else if (tab === 'splitwise') { openAddExpenseModal(null); }
+    else if (tab === 'notes') { createNewNote(); }
     else {
       document.getElementById('cmdPalette').classList.remove('hidden');
       document.getElementById('cmdInput').focus();
@@ -90,6 +91,8 @@ const CMD_ACTIONS = [
   { icon: '◎', label: 'Go to Body Metrics',      tab: 'metrics' },
   { icon: '◇', label: 'Go to Settings',          tab: 'settings' },
   { icon: '⇄', label: 'Go to Splitwise',          tab: 'splitwise' },
+  { icon: '▣', label: 'Go to Notes',             tab: 'notes' },
+  { icon: '+', label: 'New Note',                action: () => { document.getElementById('cmdPalette').classList.add('hidden'); switchTab('notes'); setTimeout(createNewNote, 200); }},
   { icon: '+', label: 'Add Subject',             action: () => { document.getElementById('cmdPalette').classList.add('hidden'); switchTab('attendance'); setTimeout(openAddSubjectModal, 200); }},
   { icon: '✦', label: 'Add Task',                action: () => { document.getElementById('cmdPalette').classList.add('hidden'); switchTab('todo'); setTimeout(() => openAddTaskModal(null), 200); }},
   { icon: '▤', label: 'Log Lecture (Present)',   action: () => { document.getElementById('cmdPalette').classList.add('hidden'); switchTab('attendance'); setTimeout(openLogLectureModal, 200); }},

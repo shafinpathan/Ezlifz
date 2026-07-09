@@ -299,33 +299,30 @@
 }
 
 /* ══════════════════════════════════════════════════
-   EDITOR OVERLAY
+   EDITOR — normal page flow (scrolls with the page,
+   works with mobile keyboards; toolbar stays sticky)
 ══════════════════════════════════════════════════ */
 #notesEditorView {
-  position: fixed;
-  top: 0; right: 0; bottom: 0;
-  left: var(--sidebar-w);
-  z-index: 300;
-  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: visible;
+  min-height: 70vh;
 }
 #notesEditorView.hidden { display: none !important; }
-
-@media (max-width: 768px) {
-  #notesEditorView { left: 0; }
-}
 
 /* ── Editor top bar ─────────────────────────────── */
 .notes-ed-topbar {
   display: flex;
   align-items: center;
   gap: .625rem;
-  padding: .75rem 1.25rem .625rem;
+  padding: .75rem 1rem .625rem;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
   flex-shrink: 0;
   flex-wrap: wrap;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
 .notes-back-btn {
@@ -397,15 +394,19 @@
   position: absolute;
   top: calc(100% + .375rem);
   right: 0;
-  background: var(--bg-card);
+  background: rgba(28,28,30,0.97);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-xs);
   box-shadow: var(--shadow);
   z-index: 400;
   min-width: 172px;
+  max-width: calc(100vw - 24px);
   overflow: hidden;
   padding: .25rem 0;
 }
+.light-theme .notes-drop { background: rgba(255,255,255,0.98); }
 .notes-drop.hidden { display: none; }
 .notes-drop button {
   display: flex;
@@ -423,7 +424,7 @@
 }
 .notes-drop button:hover { background: var(--surface-light); color: var(--text-primary); }
 
-/* ── Toolbar ────────────────────────────────────── */
+/* ── Toolbar (sticky while scrolling the note) ──── */
 .notes-tb {
   display: flex;
   align-items: center;
@@ -432,10 +433,16 @@
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
   scrollbar-width: none;
-  background: var(--bg-secondary);
+  background: rgba(18,18,22,0.92);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
   flex-shrink: 0;
   flex-wrap: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 60;
 }
+.light-theme .notes-tb { background: rgba(255,255,255,0.92); }
 .notes-tb::-webkit-scrollbar { display: none; }
 .notes-tb.hidden { display: none; }
 
@@ -475,6 +482,13 @@
 }
 .notes-tb-btn:hover { background: var(--surface-light); color: var(--text-primary); }
 .notes-tb-btn:active { background: rgba(10,132,255,.15); color: var(--accent-blue); }
+
+/* Persistent "on" state — shows which formats are active at the caret */
+.notes-tb-btn.is-on {
+  background: rgba(10,132,255,.18);
+  border-color: rgba(10,132,255,.45);
+  color: var(--accent-blue);
+}
 
 .notes-tb-sel {
   background: var(--surface-light);
@@ -542,7 +556,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background: var(--note-bg, transparent);
   transition: background .25s;
 }
@@ -611,19 +624,18 @@
 }
 .notes-title-inp::placeholder { color: var(--text-dim); }
 
-/* Editable area */
+/* Editable area — grows with content, page scrolls naturally */
 .notes-content-area {
   flex: 1;
   outline: none;
-  padding: .375rem 1.25rem 1.25rem;
+  padding: .375rem 1.25rem 1.5rem;
   color: var(--text-primary);
+  caret-color: var(--accent-blue);
   font-size: .95rem;
   line-height: 1.78;
   font-family: var(--font-body);
-  overflow-y: auto;
+  min-height: 45vh;
   word-break: break-word;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
 }
 .notes-content-area:empty::before {
   content: attr(data-placeholder);
@@ -695,11 +707,13 @@
   margin: .375rem 0;
 }
 
-/* ── Draw canvas ─────────────────────────────────── */
+/* ── Draw canvas — explicit height so it always renders ── */
 .notes-canvas-wrap {
-  flex: 1;
+  height: 62vh;
+  min-height: 380px;
   overflow: hidden;
   background: #111;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 .notes-canvas-wrap.hidden { display: none; }
 #notesDrawCanvas {
@@ -797,29 +811,6 @@
   justify-content: center;
   gap: .75rem;
   margin-top: 1.25rem;
-}
-
-/* ══════════════════════════════════════════════════
-   FOCUS MODE
-══════════════════════════════════════════════════ */
-body.notes-focus .notes-ed-topbar,
-body.notes-focus .notes-tb,
-body.notes-focus .notes-color-row,
-body.notes-focus .notes-tags-row,
-body.notes-focus .notes-ed-footer {
-  display: none !important;
-}
-body.notes-focus .notes-title-inp {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 2rem 2rem .5rem;
-  font-size: 1.8rem;
-}
-body.notes-focus .notes-content-area {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: .5rem 2rem 2rem;
-  font-size: 1rem;
 }
 
 /* ══════════════════════════════════════════════════
