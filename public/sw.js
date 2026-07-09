@@ -2,7 +2,7 @@
 // Bump CACHE_VERSION on every new deployment to trigger safe cache refresh.
 // User data (localStorage + IndexedDB) is NEVER touched by this worker.
 
-const CACHE_VERSION = 'ezlifz-v4';
+const CACHE_VERSION = 'ezlifz-v5';
 
 // App-shell assets to pre-cache on install
 const PRECACHE_URLS = [

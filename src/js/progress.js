@@ -1,28 +1,34 @@
 import Chart from 'chart.js/auto';
 import { state } from './state.js';
-import { formatDate, getLastNDays } from './utils.js';
+import { formatDate, getLastNDays, esc } from './utils.js';
 
 let chartPeriod = 7;
 const charts = {};
 
-const CHART_DEFAULTS = {
-  responsive: true,
-  maintainAspectRatio: true,
-  animation: { duration: 900, easing: 'easeOutQuart' },
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: 'rgba(28,28,30,0.92)', borderColor: 'rgba(255,255,255,0.10)', borderWidth: 1,
-      titleColor: '#ffffff', bodyColor: 'rgba(255,255,255,0.60)', padding: 12, cornerRadius: 12,
-      titleFont: { family: "'Inter', sans-serif", weight: '600', size: 12 },
-      bodyFont: { family: "'Inter', sans-serif", size: 12 }
+/* Chart colors follow the active theme (ticks were invisible in light mode) */
+function chartDefaults() {
+  const light = document.body.classList.contains('light-theme');
+  const tick = light ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.35)';
+  const grid = light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.03)';
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    animation: { duration: 900, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(28,28,30,0.92)', borderColor: 'rgba(255,255,255,0.10)', borderWidth: 1,
+        titleColor: '#ffffff', bodyColor: 'rgba(255,255,255,0.60)', padding: 12, cornerRadius: 12,
+        titleFont: { family: "'Inter', sans-serif", weight: '600', size: 12 },
+        bodyFont: { family: "'Inter', sans-serif", size: 12 }
+      }
+    },
+    scales: {
+      x: { grid: { color: grid, drawBorder: false }, border: { display: false }, ticks: { color: tick, font: { family: "'Inter', sans-serif", size: 11 } } },
+      y: { grid: { color: grid, drawBorder: false }, border: { display: false }, ticks: { color: tick, font: { family: "'Inter', sans-serif", size: 11 } } }
     }
-  },
-  scales: {
-    x: { grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, border: { display: false }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: "'Inter', sans-serif", size: 11 } } },
-    y: { grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, border: { display: false }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: "'Inter', sans-serif", size: 11 } } }
-  }
-};
+  };
+}
 
 export function initProgress() {
   document.querySelectorAll('.period-btn').forEach(btn => {
@@ -72,7 +78,7 @@ function buildChart(canvasId, labels, data, color, type) {
         borderWidth: 2.5, borderRadius: type === 'bar' ? 8 : 0, borderSkipped: false
       }]
     },
-    options: CHART_DEFAULTS
+    options: chartDefaults()
   });
 }
 
@@ -97,7 +103,7 @@ function renderStrengthProgression() {
     return `
       <div class="strength-row">
         <div>
-          <div class="strength-name">${name}</div>
+          <div class="strength-name">${esc(name)}</div>
           <div class="strength-detail">Best: ${last.weight}kg × ${last.sets}×${last.reps} (${entries.length} sessions)</div>
         </div>
         <div class="strength-change ${cls}">${delta >= 0 ? '+' : ''}${delta.toFixed(1)} kg</div>

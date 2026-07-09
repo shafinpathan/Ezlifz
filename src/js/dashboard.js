@@ -22,6 +22,8 @@ export function updateStreak() {
   autoSave();
 }
 
+function _isLight() { return document.body.classList.contains('light-theme'); }
+
 export function drawRing(canvasId, value, max, color) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -34,7 +36,7 @@ export function drawRing(canvasId, value, max, color) {
   ctx.clearRect(0, 0, W, H);
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.strokeStyle = _isLight() ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
   ctx.lineWidth = 9;
   ctx.stroke();
   if (pct > 0) {
@@ -49,7 +51,7 @@ export function drawRing(canvasId, value, max, color) {
     ctx.stroke();
     ctx.restore();
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.90)';
+  ctx.fillStyle = _isLight() ? 'rgba(28,28,30,0.90)' : 'rgba(255,255,255,0.90)';
   ctx.font = `700 ${W < 100 ? 13 : 14}px 'Inter', -apple-system, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -66,7 +68,7 @@ export function drawScoreRing(canvasId, value, max, color) {
   ctx.clearRect(0, 0, W, H);
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.strokeStyle = _isLight() ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
   ctx.lineWidth = 7;
   ctx.stroke();
   ctx.beginPath();

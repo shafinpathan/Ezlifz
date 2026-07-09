@@ -6,6 +6,7 @@ import { renderDashboard } from './dashboard.js';
 import { updateNutritionSummary, renderMealSections, resetMealPresets } from './nutrition.js';
 import { renderExerciseList, renderWorkoutHistory } from './workout.js';
 import { renderMetricsLog, renderMetricsAverages } from './metrics.js';
+import { renderProgressCharts } from './progress.js';
 import { CATEGORY_LABELS } from './wardrobe.js';
 import { getSubjectStats } from './attendance.js';
 import { pushNotif } from './notifications.js';
@@ -64,6 +65,10 @@ export function applyTheme(theme) {
   }
   state.settings.theme = theme;
   setTimeout(renderDashboard, 100);
+  // Charts hold their colors until re-rendered — refresh if Progress is open
+  if (!document.getElementById('tab-progress')?.classList.contains('hidden')) {
+    setTimeout(renderProgressCharts, 120);
+  }
 }
 
 // ── Module-based reset ────────────────────────────────────────────────────────

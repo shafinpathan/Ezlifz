@@ -3,7 +3,7 @@ import { uid, todayStr, closeModal, showToast, esc } from './utils.js';
 import { renderDashboard } from './dashboard.js';
 import { renderAttendance, openAddSubjectModal, openLogLectureModal } from './attendance.js';
 import { renderTodo, openAddTaskModal, completeTask } from './todo.js';
-import { renderWardrobe } from './wardrobe.js';
+import { renderWardrobe, openClothingModal } from './wardrobe.js';
 import { renderAIFeedback, setAIDeps } from './ai.js';
 import { renderProgressCharts } from './progress.js';
 import { renderSplitwise, openAddExpenseModal } from './splitwise.js';
@@ -21,6 +21,7 @@ export function initNav() {
 }
 
 export function switchTab(tab) {
+  try { localStorage.setItem('ezlifz_last_tab', tab); } catch { /* storage blocked */ }
   document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.bn-item').forEach(i => i.classList.remove('active'));
@@ -59,6 +60,7 @@ export function initFab() {
     else if (tab === 'metrics') { document.getElementById('mWeight').focus(); }
     else if (tab === 'splitwise') { openAddExpenseModal(null); }
     else if (tab === 'notes') { createNewNote(); }
+    else if (tab === 'wardrobe') { openClothingModal(null); }
     else {
       document.getElementById('cmdPalette').classList.remove('hidden');
       document.getElementById('cmdInput').focus();

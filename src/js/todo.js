@@ -217,35 +217,18 @@ export function renderTodo() {
 
     col.querySelectorAll('.col-expand-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const extra = document.getElementById(btn.dataset.target);
+        // Accordion: only one column expanded at a time. Expanding a new
+        // column collapses the previous one and scrolls back to this column.
         const colStatus = btn.dataset.status;
-        const count = btn.dataset.count;
-        const open = extra.classList.contains('is-open');
-        const chevron = btn.querySelector('.col-expand-chevron');
-
-        if (open) {
-          _expandedCols.delete(colStatus);
-          extra.style.maxHeight = extra.scrollHeight + 'px';
-          extra.offsetHeight; // force reflow
-          requestAnimationFrame(() => { extra.style.maxHeight = '0'; });
-          extra.classList.remove('is-open');
-          extra.setAttribute('aria-hidden', 'true');
-          btn.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-          if (chevron) chevron.classList.remove('up');
-          btn.innerHTML = `<span class="col-expand-chevron">▾</span> Show ${count} more`;
-        } else {
-          _expandedCols.add(colStatus);
-          extra.classList.add('is-open');
-          extra.removeAttribute('aria-hidden');
-          extra.style.maxHeight = extra.scrollHeight + 'px';
-          extra.addEventListener('transitionend', () => {
-            if (extra.classList.contains('is-open')) extra.style.maxHeight = 'none';
-          }, { once: true });
-          btn.classList.add('is-open');
-          btn.setAttribute('aria-expanded', 'true');
-          btn.innerHTML = `<span class="col-expand-chevron up">▾</span> Show Less`;
-        }
+        const wasOpen = _expandedCols.has(colStatus);
+        _expandedCols.clear();
+        if (!wasOpen) _expandedCols.add(colStatus);
+        renderTodo();
+        requestAnimationFrame(() => {
+          const colEl = document.getElementById('col-' + colStatus);
+          const wrap = colEl?.closest('.kanban-col-wrap') || colEl;
+          wrap?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
     });
   });

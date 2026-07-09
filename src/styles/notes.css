@@ -574,6 +574,9 @@
 .notes-ed-body.is-light-bg .n-cb { border-color: rgba(0,0,0,.3); }
 .notes-ed-body.is-light-bg .n-cl-item.done .n-cl-text { color: rgba(0,0,0,.4); }
 .notes-ed-body.is-light-bg .notes-color-row { background: rgba(0,0,0,.04); border-bottom-color: rgba(0,0,0,.08); }
+.notes-ed-body.is-light-bg .notes-clr-label { color: rgba(0,0,0,.5); }
+.notes-ed-body.is-light-bg .notes-clr-dot[data-ci="0"],
+.notes-ed-body.is-light-bg .notes-bg-dot[data-bid="default"] { border-color: rgba(0,0,0,.25) !important; }
 .notes-ed-body.is-light-bg .n-audio-player { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
 
 /* Color strip */
@@ -595,6 +598,15 @@
   align-items: center;
   gap: .35rem;
   flex-shrink: 0;
+}
+
+.notes-clr-label {
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+  margin-right: .25rem;
 }
 
 .notes-clr-dot, .notes-bg-dot {

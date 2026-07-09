@@ -1,6 +1,6 @@
 import { loadData, saveData, storageAvailable, state } from './js/state.js';
 import { applyTheme, initSettings, initExportImport } from './js/settings.js';
-import { initNav, initFab, initMoreSheet, initCommandPalette } from './js/nav.js';
+import { initNav, initFab, initMoreSheet, initCommandPalette, switchTab } from './js/nav.js';
 import { initNutrition, initMealPresets, initEditFoodModal } from './js/nutrition.js';
 import { initWorkout, initWorkoutPresets } from './js/workout.js';
 import { initProgress } from './js/progress.js';
@@ -48,6 +48,14 @@ function init() {
 
   renderDashboard();
   updateStreak();
+
+  // Restore the tab the user was on before refresh
+  try {
+    const lastTab = localStorage.getItem('ezlifz_last_tab');
+    if (lastTab && lastTab !== 'dashboard' && document.getElementById('tab-' + lastTab)) {
+      switchTab(lastTab);
+    }
+  } catch { /* storage blocked */ }
 
   document.getElementById('dashDate').textContent =
     new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });

@@ -84,6 +84,7 @@ let _recSeconds  = 0;
 let _recTimer    = null;
 let _autoTimer   = null;
 let _imgInput    = null;
+let _savedRange  = null;   // last selection inside the editor (color pickers steal focus)
 
 // ═══════════════════════════════════════════════════════════════
 //  INIT
@@ -320,11 +321,11 @@ function _buildEditor() {
       <!-- Color accent row -->
       <div class="notes-color-row">
         <div class="notes-clr-group">
-          <span style="font-size:.65rem;color:var(--text-dim);margin-right:.25rem">Accent</span>
+          <span class="notes-clr-label">Accent</span>
           ${NOTE_COLORS.map((c, i) => `<button class="notes-clr-dot" data-ci="${i}" style="background:${c || 'transparent'};${!c?'border:2px solid var(--border)':''}" title="${c || 'None'}"></button>`).join('')}
         </div>
         <div class="notes-clr-group">
-          <span style="font-size:.65rem;color:var(--text-dim);margin-right:.25rem">BG</span>
+          <span class="notes-clr-label">BG</span>
           ${BG_OPTIONS.map(b => `<button class="notes-bg-dot" data-bid="${b.id}" style="background:${b.bg||'var(--surface-light)'};${!b.bg?'border:2px solid var(--border)':''}" title="${b.label}"></button>`).join('')}
         </div>
       </div>
@@ -590,9 +591,16 @@ function _wireEditor() {
     });
   });
 
-  // Live active-state on format buttons (bold/italic/lists/align)
+  // Live active-state on format buttons + remember the selection so the
+  // color pickers (which steal focus) can restore it before applying color
   document.addEventListener('selectionchange', () => {
-    if (_view === 'editor' && !_drawMode) _refreshToolbar();
+    if (_view !== 'editor' || _drawMode) return;
+    _refreshToolbar();
+    const sel = window.getSelection();
+    const area = document.getElementById('notesEditorArea');
+    if (sel.rangeCount && area && area.contains(sel.anchorNode)) {
+      _savedRange = sel.getRangeAt(0).cloneRange();
+    }
   });
 
   el.querySelector('#notesFmtSel').addEventListener('change', e => {
@@ -603,8 +611,22 @@ function _wireEditor() {
 
   el.querySelector('#notesChecklistBtn').addEventListener('click', _insertChecklist);
 
-  el.querySelector('#notesFgColor').addEventListener('input', e => { document.execCommand('foreColor', false, e.target.value); });
-  el.querySelector('#notesHlColor').addEventListener('input', e => { document.execCommand('hiliteColor', false, e.target.value); });
+  const _applyColorCmd = (cmd, value) => {
+    const area = document.getElementById('notesEditorArea');
+    if (!area) return;
+    area.focus();
+    // Restore the text selection the color picker made us lose
+    if (_savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(_savedRange);
+    }
+    try { document.execCommand('styleWithCSS', false, true); } catch { /* older engines */ }
+    document.execCommand(cmd, false, value);
+    _schedSave();
+  };
+  el.querySelector('#notesFgColor').addEventListener('input', e => _applyColorCmd('foreColor', e.target.value));
+  el.querySelector('#notesHlColor').addEventListener('input', e => _applyColorCmd('hiliteColor', e.target.value));
 
   el.querySelector('#notesImgBtn').addEventListener('click', _pickImage);
   el.querySelector('#notesAudioBtn').addEventListener('click', _showAudioModal);
@@ -697,7 +719,47 @@ function _handleKey(e) {
     if (e.key === 'u') { e.preventDefault(); document.execCommand('underline'); }
     if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); document.execCommand('undo'); }
     if (e.key === 'z' && e.shiftKey)  { e.preventDefault(); document.execCommand('redo'); }
+    return;
   }
+
+  // Enter inside a checklist row → create the next row (empty row exits the list)
+  if (e.key === 'Enter' && !e.shiftKey) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    const node = sel.anchorNode;
+    const elNode = node.nodeType === 3 ? node.parentElement : node;
+    const item = elNode?.closest?.('.n-cl-item');
+    const area = document.getElementById('notesEditorArea');
+    if (!item || !area?.contains(item)) return;
+    e.preventDefault();
+
+    const textEl = item.querySelector('.n-cl-text');
+    const isEmpty = !(textEl?.textContent || '').replace(/ |\s/g, '');
+
+    if (isEmpty) {
+      // Empty row → leave the checklist, continue as a normal paragraph
+      const p = document.createElement('div');
+      p.innerHTML = '<br>';
+      item.replaceWith(p);
+      _placeCaret(p);
+    } else {
+      const next = document.createElement('div');
+      next.className = 'n-cl-item';
+      next.innerHTML = '<span class="n-cb" contenteditable="false"></span><span class="n-cl-text"> </span>';
+      item.after(next);
+      _placeCaret(next.querySelector('.n-cl-text'));
+    }
+    _schedSave();
+  }
+}
+
+function _placeCaret(el) {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
 function _handleCheckClick(e) {

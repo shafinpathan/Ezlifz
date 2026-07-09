@@ -16,6 +16,44 @@ const CATEGORY_ICONS = {
   shoes: 'SO', accessories: 'AC', watch: 'WT', perfume: 'PF'
 };
 
+/* Categories = built-ins + user-defined (stored in state.wardrobe.customCategories) */
+function _customCats() {
+  if (!state.wardrobe.customCategories) state.wardrobe.customCategories = [];
+  return state.wardrobe.customCategories;
+}
+export function getCatLabel(cat) {
+  return CATEGORY_LABELS[cat] || _customCats().find(c => c.id === cat)?.label || (cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : cat);
+}
+function getCatIcon(cat) {
+  return CATEGORY_ICONS[cat] || getCatLabel(cat).slice(0, 2).toUpperCase();
+}
+function _allCatIds() {
+  return [...Object.keys(CATEGORY_LABELS), ..._customCats().map(c => c.id)];
+}
+
+function _populateCategorySelects() {
+  const opts = _allCatIds().map(id => `<option value="${id}">${esc(getCatLabel(id))}</option>`).join('');
+  const catSel = document.getElementById('clothingCategory');
+  if (catSel) { const v = catSel.value; catSel.innerHTML = opts; if (v && _allCatIds().includes(v)) catSel.value = v; }
+  const filterSel = document.getElementById('wardrobeFilterCat');
+  if (filterSel) { const v = filterSel.value; filterSel.innerHTML = `<option value="">All Categories</option>` + opts; filterSel.value = v; }
+}
+
+function _addCustomCategory() {
+  const name = prompt('New category name (e.g. Caps, Sunglasses):');
+  if (!name?.trim()) return;
+  const label = name.trim();
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!id) { showToast('Invalid category name'); return; }
+  if (_allCatIds().includes(id)) { showToast('That category already exists'); return; }
+  _customCats().push({ id, label });
+  autoSave();
+  _populateCategorySelects();
+  const catSel = document.getElementById('clothingCategory');
+  if (catSel) catSel.value = id;
+  showToast(`Category "${label}" added`);
+}
+
 let editingClothingId = null;
 let editingOutfitId   = null;
 
@@ -43,7 +81,10 @@ export function initWardrobe() {
     });
   });
 
+  _populateCategorySelects();
   document.getElementById('addClothingBtn').addEventListener('click', () => openClothingModal(null));
+  document.getElementById('addCategoryBtn')?.addEventListener('click', _addCustomCategory);
+  document.getElementById('outfitCatFilter')?.addEventListener('change', _renderOutfitSelector);
   document.getElementById('saveClothingBtn').addEventListener('click', saveClothingItem);
   document.getElementById('cancelClothingBtn').addEventListener('click', () => {
     _stopCamera();
@@ -196,7 +237,7 @@ function _resetCameraUI() {
 
 // ── clothing CRUD ─────────────────────────────────────────────────────────────
 
-function openClothingModal(itemId = null) {
+export function openClothingModal(itemId = null) {
   editingClothingId  = itemId;
   _pendingImg        = null;
   _pendingImgChanged = false;
@@ -305,11 +346,11 @@ export async function renderClothingGrid() {
     <div class="wardrobe-cat-section">
       <div class="wardrobe-cat-header">
         <div class="wardrobe-cat-info">
-          <div class="wardrobe-cat-title">${CATEGORY_LABELS[cat] || cat}</div>
+          <div class="wardrobe-cat-title">${esc(getCatLabel(cat))}</div>
           <div class="wardrobe-cat-count">${catItems.length} item${catItems.length !== 1 ? 's' : ''}</div>
         </div>
-        <button class="wardrobe-cat-thumb" data-cat="${cat}" title="Toggle ${CATEGORY_LABELS[cat] || cat}" aria-expanded="true">
-          <span class="wardrobe-cat-thumb-label">${CATEGORY_ICONS[cat] || cat.charAt(0).toUpperCase()}</span>
+        <button class="wardrobe-cat-thumb" data-cat="${cat}" title="Toggle ${esc(getCatLabel(cat))}" aria-expanded="true">
+          <span class="wardrobe-cat-thumb-label">${esc(getCatIcon(cat))}</span>
         </button>
       </div>
       <div class="wardrobe-cat-items" id="wcat-${cat}">
@@ -322,7 +363,7 @@ export async function renderClothingGrid() {
             <div class="clothing-row-thumb">
               ${imgSrc
                 ? `<img src="${esc(imgSrc)}" alt="${esc(item.name)}" loading="lazy" />`
-                : `<span>${CATEGORY_ICONS[item.category] || esc(item.name.charAt(0).toUpperCase())}</span>`}
+                : `<span>${esc(getCatIcon(item.category))}</span>`}
             </div>
             <div class="clothing-row-body">
               <div class="clothing-row-name">${esc(item.name)}${item.favorite ? '<span class="clothing-fav-mark">♥</span>' : ''}</div>
@@ -382,25 +423,66 @@ function openBuildOutfitModal(outfitId = null) {
   document.getElementById('outfitName').value     = outfit ? outfit.name     : '';
   document.getElementById('outfitOccasion').value = outfit ? outfit.occasion : '';
 
+  // Populate the category filter with only categories that have items
+  const usedCats = [...new Set(state.wardrobe.items.map(i => i.category))];
+  const filterSel = document.getElementById('outfitCatFilter');
+  if (filterSel) {
+    filterSel.innerHTML = `<option value="">All categories</option>` +
+      usedCats.map(c => `<option value="${c}">${esc(getCatLabel(c))}</option>`).join('');
+    filterSel.value = '';
+  }
+
+  _outfitChecked = new Set(outfit ? outfit.itemIds : []);
+  _renderOutfitSelector();
+  modal.classList.remove('hidden');
+}
+
+/* Checked item ids survive category-filter changes */
+let _outfitChecked = new Set();
+
+function _renderOutfitSelector() {
   const selector = document.getElementById('outfitItemSelector');
+  if (!selector) return;
+
+  // Remember what's currently ticked before re-rendering
+  selector.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    if (cb.checked) _outfitChecked.add(cb.value);
+    else _outfitChecked.delete(cb.value);
+  });
+
   if (!state.wardrobe.items.length) {
     selector.innerHTML = `<div class="empty-state-sm" style="grid-column:1/-1">Add clothing items first</div>`;
-  } else {
-    const selected = outfit ? outfit.itemIds : [];
-    selector.innerHTML = state.wardrobe.items.map(item => `
-      <label class="outfit-item-pick">
-        <input type="checkbox" value="${item.id}" ${selected.includes(item.id) ? 'checked' : ''} />
-        <span class="oip-icon">${CATEGORY_ICONS[item.category] || ''}</span>
-        <span class="oip-name">${esc(item.name)}</span>
-      </label>`).join('');
+    return;
   }
-  modal.classList.remove('hidden');
+
+  const cat = document.getElementById('outfitCatFilter')?.value || '';
+  const items = cat ? state.wardrobe.items.filter(i => i.category === cat) : state.wardrobe.items;
+
+  selector.innerHTML = items.length ? items.map(item => `
+    <label class="outfit-item-pick">
+      <input type="checkbox" value="${item.id}" ${_outfitChecked.has(item.id) ? 'checked' : ''} />
+      <span class="oip-icon">${getCatIcon(item.category)}</span>
+      <span class="oip-name">${esc(item.name)}</span>
+    </label>`).join('')
+    : `<div class="empty-state-sm" style="grid-column:1/-1">No items in this category</div>`;
+
+  selector.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) _outfitChecked.add(cb.value);
+      else _outfitChecked.delete(cb.value);
+    });
+  });
 }
 
 function saveOutfit() {
   const name = document.getElementById('outfitName').value.trim();
   if (!name) { showToast('Enter an outfit name'); return; }
-  const checked = [...document.querySelectorAll('#outfitItemSelector input:checked')].map(c => c.value);
+  // Sync current DOM state, then read the full set (includes items hidden by the filter)
+  document.querySelectorAll('#outfitItemSelector input[type="checkbox"]').forEach(cb => {
+    if (cb.checked) _outfitChecked.add(cb.value);
+    else _outfitChecked.delete(cb.value);
+  });
+  const checked = [..._outfitChecked].filter(id => state.wardrobe.items.some(i => i.id === id));
   if (!checked.length) { showToast('Select at least one item'); return; }
   const occasion = document.getElementById('outfitOccasion').value.trim() || 'casual';
 
