@@ -12,12 +12,33 @@ import DOMPurify from 'dompurify';
    but strips scripts and event handlers. */
 function _sanitize(html) {
   return DOMPurify.sanitize(html || '', {
-    ALLOWED_TAGS: ['a','b','strong','i','em','u','s','strike','br','p','div','span',
+    ALLOWED_TAGS: ['a','b','strong','i','em','u','s','strike','br','p','div','span','font',
       'h1','h2','h3','h4','blockquote','pre','code','ul','ol','li','hr','img','audio'],
-    ALLOWED_ATTR: ['href','src','controls','style','class','id','contenteditable','alt','loading'],
+    ALLOWED_ATTR: ['href','src','controls','style','class','id','contenteditable','alt','loading','color','face','size'],
     ALLOWED_URI_REGEXP: /^(?:(?:https?|data|blob):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i
   });
 }
+
+// ── SVG icon set (stroke-based, inherits currentColor) ────────
+const _svg = (paths, vb = '0 0 24 24') =>
+  `<svg class="n-icon" viewBox="${vb}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+
+const ICONS = {
+  pin:     _svg('<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 0-2H8a1 1 0 0 0 0 2h1z"/>'),
+  star:    _svg('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  trash:   _svg('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+  folder:  _svg('<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>'),
+  archive: _svg('<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>'),
+  copy:    _svg('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'),
+  image:   _svg('<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>'),
+  mic:     _svg('<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>'),
+  grid:    _svg('<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'),
+  list:    _svg('<line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>'),
+  note:    _svg('<path d="M4 4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>'),
+  restore: _svg('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>'),
+  pencil:  _svg('<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>'),
+  x:       _svg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>')
+};
 
 // ── Constants ─────────────────────────────────────────────────
 const NOTE_COLORS = [
@@ -33,7 +54,7 @@ const BG_OPTIONS = [
   { id: 'pink',    label: 'Pink',   bg: '#fce4ec' },
 ];
 const FILTERS = ['all', 'favorites', 'pinned', 'archived', 'trash'];
-const FILTER_LABELS = { all: 'All', favorites: '⭐ Favorites', pinned: '📌 Pinned', archived: 'Archive', trash: '🗑 Trash' };
+const FILTER_LABELS = { all: 'All', favorites: 'Favorites', pinned: 'Pinned', archived: 'Archive', trash: 'Trash' };
 const SORT_FNS = {
   updatedAt: (a, b) => b.updatedAt.localeCompare(a.updatedAt),
   createdAt: (a, b) => b.createdAt.localeCompare(a.createdAt),
@@ -91,8 +112,9 @@ function _migrate() {
     if (!n.color)                 n.color      = null;
     if (!n.background)            n.background = 'default';
     if (!n.tags)                  n.tags       = [];
-    if (!n.wordCount)             n.wordCount  = _wc(n.content || '');
-    if (!n.preview)               n.preview    = _preview(n.content || '');
+    const plainText = (n.content || '').replace(/<[^>]+>/g, ' ');
+    if (!n.wordCount)             n.wordCount  = _wc(plainText);
+    if (!n.preview)               n.preview    = _preview(plainText);
     if (!n.createdAt)             n.createdAt  = new Date().toISOString();
     if (!n.updatedAt)             n.updatedAt  = new Date().toISOString();
   });
@@ -115,7 +137,7 @@ function _buildHome() {
         <div class="notes-search-wrap">
           <input class="search-input" type="text" id="notesSearch" placeholder="Search notes…" style="min-width:160px" />
         </div>
-        <button class="btn-icon" id="notesViewToggle" title="Toggle view" style="width:34px;height:34px;font-size:.9rem">⊞</button>
+        <button class="btn-icon" id="notesViewToggle" title="Toggle view" style="width:34px;height:34px">${ICONS.grid}</button>
         <button class="btn-primary" id="notesNewBtn" style="padding:.5rem 1rem;font-size:.82rem">+ New Note</button>
       </div>
     </div>
@@ -140,12 +162,12 @@ function _buildHome() {
 
     <!-- Notes content -->
     <div id="notesPinnedWrap" class="notes-section hidden">
-      <div class="notes-section-label">📌 Pinned</div>
+      <div class="notes-section-label">${ICONS.pin} Pinned</div>
       <div class="notes-grid" id="notesPinnedGrid"></div>
     </div>
 
     <div id="notesFavWrap" class="notes-section hidden">
-      <div class="notes-section-label">⭐ Favorites</div>
+      <div class="notes-section-label">${ICONS.star} Favorites</div>
       <div class="notes-grid" id="notesFavGrid"></div>
     </div>
 
@@ -155,7 +177,7 @@ function _buildHome() {
     </div>
 
     <div class="notes-empty-state" id="notesEmpty" style="display:none">
-      <div style="font-size:3rem;opacity:.3">📝</div>
+      <div class="notes-empty-icon">${ICONS.note}</div>
       <p id="notesEmptyMsg" style="color:var(--text-muted);font-size:.9rem;margin:.5rem 0 0">No notes yet. Tap <b>+ New Note</b> to start.</p>
     </div>
   `;
@@ -189,11 +211,11 @@ function _buildEditor() {
         <span class="notes-save-label" id="notesSaveLabel">Saved</span>
       </div>
       <div class="notes-ed-actions">
-        <button class="btn-outline-sm notes-mode-btn active" id="notesTextModeBtn">✦ Text</button>
-        <button class="btn-outline-sm notes-mode-btn" id="notesDrawModeBtn">✎ Draw</button>
-        <button class="btn-outline-sm" id="notesFocusBtn">⊡ Focus</button>
+        <button class="btn-outline-sm notes-mode-btn active" id="notesTextModeBtn">Text</button>
+        <button class="btn-outline-sm notes-mode-btn" id="notesDrawModeBtn">${ICONS.pencil} Draw</button>
+        <button class="btn-outline-sm" id="notesFocusBtn">Focus</button>
         <div class="notes-drop-wrap">
-          <button class="btn-outline-sm" id="notesExportBtn">Export ↓</button>
+          <button class="btn-outline-sm" id="notesExportBtn">Export</button>
           <div class="notes-drop hidden" id="notesExportMenu">
             <button data-export="txt">Plain Text (.txt)</button>
             <button data-export="markdown">Markdown (.md)</button>
@@ -204,12 +226,12 @@ function _buildEditor() {
         <div class="notes-drop-wrap">
           <button class="btn-icon notes-more-btn" id="notesMoreBtn" style="width:32px;height:32px">⋯</button>
           <div class="notes-drop hidden" id="notesMoreMenu">
-            <button data-action="pin">📌 Toggle Pin</button>
-            <button data-action="favorite">⭐ Toggle Favorite</button>
-            <button data-action="archive">📦 Archive</button>
-            <button data-action="duplicate">⧉ Duplicate</button>
-            <button data-action="move">📁 Move to Folder</button>
-            <button data-action="trash" style="color:var(--danger)">🗑 Move to Trash</button>
+            <button data-action="pin">${ICONS.pin} Toggle Pin</button>
+            <button data-action="favorite">${ICONS.star} Toggle Favorite</button>
+            <button data-action="archive">${ICONS.archive} Archive</button>
+            <button data-action="duplicate">${ICONS.copy} Duplicate</button>
+            <button data-action="move">${ICONS.folder} Move to Folder</button>
+            <button data-action="trash" style="color:var(--danger)">${ICONS.trash} Move to Trash</button>
           </div>
         </div>
       </div>
@@ -239,7 +261,7 @@ function _buildEditor() {
       <div class="notes-tb-grp">
         <button class="notes-tb-btn" data-cmd="insertUnorderedList" title="Bullet list">• List</button>
         <button class="notes-tb-btn" data-cmd="insertOrderedList"   title="Numbered list">1. List</button>
-        <button class="notes-tb-btn" id="notesChecklistBtn"         title="Checklist">☑ Check</button>
+        <button class="notes-tb-btn" id="notesChecklistBtn"         title="Checklist">✓ List</button>
       </div>
       <div class="notes-tb-div"></div>
       <div class="notes-tb-grp">
@@ -254,8 +276,8 @@ function _buildEditor() {
       </div>
       <div class="notes-tb-div"></div>
       <div class="notes-tb-grp">
-        <button class="notes-tb-btn" id="notesImgBtn"   title="Image">🖼</button>
-        <button class="notes-tb-btn" id="notesAudioBtn" title="Audio">🎙</button>
+        <button class="notes-tb-btn" id="notesImgBtn"   title="Insert image">${ICONS.image}</button>
+        <button class="notes-tb-btn" id="notesAudioBtn" title="Record audio">${ICONS.mic}</button>
         <button class="notes-tb-btn" data-cmd="insertHorizontalRule" title="Divider">― HR</button>
       </div>
       <div class="notes-tb-div"></div>
@@ -268,10 +290,10 @@ function _buildEditor() {
     <!-- Draw toolbar -->
     <div class="notes-tb hidden" id="notesDrawTb">
       <div class="notes-tb-grp">
-        <button class="notes-draw-tool active" data-tool="pen">✏ Pen</button>
-        <button class="notes-draw-tool" data-tool="marker">◼ Marker</button>
-        <button class="notes-draw-tool" data-tool="highlighter">☆ HL</button>
-        <button class="notes-draw-tool" data-tool="eraser">⬜ Erase</button>
+        <button class="notes-draw-tool active" data-tool="pen">Pen</button>
+        <button class="notes-draw-tool" data-tool="marker">Marker</button>
+        <button class="notes-draw-tool" data-tool="highlighter">Highlight</button>
+        <button class="notes-draw-tool" data-tool="eraser">Eraser</button>
       </div>
       <div class="notes-tb-div"></div>
       <label class="notes-clr-pick" title="Color">●<input type="color" id="notesDrawColor" value="#ffffff" /></label>
@@ -341,7 +363,7 @@ function _renderHome() {
   _renderFolderBar();
   _renderGrid();
   const toggle = document.getElementById('notesViewToggle');
-  if (toggle) toggle.textContent = _viewMode === 'grid' ? '☰' : '⊞';
+  if (toggle) toggle.innerHTML = _viewMode === 'grid' ? ICONS.list : ICONS.grid;
   const sortEl = document.getElementById('notesSortSelect');
   if (sortEl) sortEl.value = _sort;
 }
@@ -352,7 +374,7 @@ function _renderFolderBar() {
   const allCount = state.notes.items.filter(n => !n.isTrashed).length;
   el.innerHTML = `
     <button class="notes-folder-pill${_folder === null ? ' active' : ''}" data-fid="__all">
-      📋 All <span class="notes-folder-cnt">${allCount}</span>
+      ${ICONS.folder} All <span class="notes-folder-cnt">${allCount}</span>
     </button>
     ${state.notes.folders.map(f => {
       const cnt = state.notes.items.filter(n => n.folderId === f.id && !n.isTrashed).length;
@@ -428,18 +450,18 @@ function _cardHTML(n) {
   const inTrash = n.isTrashed;
 
   return `
-    <div class="notes-card" data-nid="${n.id}"
+    <div class="notes-card${bgStyle ? ' has-bg' : ''}" data-nid="${n.id}"
       style="${accent ? `border-top:3px solid ${accent};` : ''}${bgStyle ? `--card-bg:${bgStyle};` : ''}">
       <div class="notes-card-top">
         <div class="notes-card-title">${n.title ? _esc(n.title) : '<span class="notes-card-untitled">Untitled</span>'}</div>
         <div class="notes-card-actions">
           ${!inTrash ? `
-          <button class="notes-card-icon-btn${n.isPinned?' is-active':''}" data-pin="${n.id}" title="${n.isPinned?'Unpin':'Pin'}">📌</button>
-          <button class="notes-card-icon-btn${n.isFavorite?' is-active':''}" data-fav="${n.id}" title="${n.isFavorite?'Unfav':'Fav'}">⭐</button>
-          <button class="notes-card-icon-btn notes-card-del-btn" data-del="${n.id}" title="Trash">🗑</button>
+          <button class="notes-card-icon-btn${n.isPinned?' is-active':''}" data-pin="${n.id}" title="${n.isPinned?'Unpin':'Pin'}">${ICONS.pin}</button>
+          <button class="notes-card-icon-btn${n.isFavorite?' is-active':''}" data-fav="${n.id}" title="${n.isFavorite?'Unfavorite':'Favorite'}">${ICONS.star}</button>
+          <button class="notes-card-icon-btn notes-card-del-btn" data-del="${n.id}" title="Trash">${ICONS.trash}</button>
           ` : `
           <button class="btn-outline-sm" data-restore="${n.id}" style="font-size:.68rem;padding:.2rem .5rem">Restore</button>
-          <button class="notes-card-icon-btn notes-card-del-btn" data-perm="${n.id}" title="Delete forever">✕</button>
+          <button class="notes-card-icon-btn notes-card-del-btn" data-perm="${n.id}" title="Delete forever">${ICONS.x}</button>
           `}
         </div>
       </div>
@@ -448,7 +470,7 @@ function _cardHTML(n) {
       <div class="notes-card-footer">
         <span class="notes-card-date">${date}</span>
         ${n.wordCount ? `<span class="notes-card-wc">${n.wordCount}w</span>` : ''}
-        ${n.drawing ? '<span style="font-size:.7rem">✎</span>' : ''}
+        ${n.drawing ? `<span class="notes-card-draw-ind">${ICONS.pencil}</span>` : ''}
       </div>
     </div>`;
 }
@@ -482,7 +504,7 @@ function _closeEditor() {
   _view = 'home';
   _focusMode = false;
   document.body.classList.remove('notes-focus');
-  document.getElementById('notesFocusBtn').textContent = '⊡ Focus';
+  document.getElementById('notesFocusBtn').textContent = 'Focus';
   document.getElementById('notesHomeView').classList.remove('hidden');
   document.getElementById('notesEditorView').classList.add('hidden');
   _renderHome();
@@ -560,7 +582,7 @@ function _wireEditor() {
   el.querySelector('#notesFocusBtn').addEventListener('click', () => {
     _focusMode = !_focusMode;
     document.body.classList.toggle('notes-focus', _focusMode);
-    el.querySelector('#notesFocusBtn').textContent = _focusMode ? '⊞ Exit Focus' : '⊡ Focus';
+    el.querySelector('#notesFocusBtn').textContent = _focusMode ? 'Exit Focus' : 'Focus';
   });
 
   el.querySelectorAll('[data-cmd]').forEach(btn => {
@@ -655,14 +677,16 @@ function _handleCheckClick(e) {
 
 function _insertChecklist() {
   document.execCommand('insertHTML', false,
-    `<div class="n-cl-item"><span class="n-cb"></span><span class="n-cl-text" contenteditable="true">&nbsp;</span></div>`);
+    `<div class="n-cl-item"><span class="n-cb" contenteditable="false"></span><span class="n-cl-text">&nbsp;</span></div>`);
 }
 
 function _applyNoteStyle(note) {
   const body = document.getElementById('notesEdBody');
   if (!body) return;
   const bg = BG_OPTIONS.find(b => b.id === note.background)?.bg || '';
-  body.style.setProperty('--note-bg', bg);
+  body.style.setProperty('--note-bg', bg || 'transparent');
+  // Pastel backgrounds are light — switch editor text to dark so it stays readable
+  body.classList.toggle('is-light-bg', !!bg);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -860,7 +884,7 @@ function _onRecStopped() {
   const reader = new FileReader();
   reader.onload = ev => {
     const dur = _recSeconds;
-    const player = `<div class="n-audio-player"><span>🎙</span><audio controls src="${ev.target.result}" style="flex:1;height:28px"></audio><span style="font-size:.7rem;color:var(--text-muted)">${String(Math.floor(dur/60)).padStart(2,'0')}:${String(dur%60).padStart(2,'0')}</span></div>`;
+    const player = `<div class="n-audio-player"><audio controls src="${ev.target.result}" style="flex:1;height:28px"></audio><span style="font-size:.7rem;color:var(--text-muted)">${String(Math.floor(dur/60)).padStart(2,'0')}:${String(dur%60).padStart(2,'0')}</span></div>`;
     document.execCommand('insertHTML', false, player);
     _schedSave();
     document.getElementById('notesAudioModal')?.classList.add('hidden');
@@ -883,8 +907,8 @@ function _noteAction(action) {
   }
 }
 
-function _togglePin(id)  { const n = _find(id); if (!n) return; n.isPinned   = !n.isPinned;   autoSave(); _renderHome(); showToast(n.isPinned   ? '📌 Pinned'   : 'Unpinned'); }
-function _toggleFav(id)  { const n = _find(id); if (!n) return; n.isFavorite = !n.isFavorite; autoSave(); _renderHome(); showToast(n.isFavorite ? '⭐ Favorited' : 'Removed from favorites'); }
+function _togglePin(id)  { const n = _find(id); if (!n) return; n.isPinned   = !n.isPinned;   autoSave(); _renderHome(); showToast(n.isPinned   ? 'Pinned'   : 'Unpinned'); }
+function _toggleFav(id)  { const n = _find(id); if (!n) return; n.isFavorite = !n.isFavorite; autoSave(); _renderHome(); showToast(n.isFavorite ? 'Added to favorites' : 'Removed from favorites'); }
 function _trashNote(id)  { const n = _find(id); if (!n) return; n.isTrashed  = true; autoSave(); _renderHome(); showToast('Moved to Trash'); }
 function _restoreNote(id){ const n = _find(id); if (!n) return; n.isTrashed  = false; autoSave(); _renderHome(); showToast('Restored'); }
 function _permDelete(id) { if (!confirm('Permanently delete this note?')) return; state.notes.items = state.notes.items.filter(n => n.id !== id); autoSave(); _renderHome(); showToast('Deleted permanently'); }

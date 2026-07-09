@@ -27,7 +27,7 @@
 .notes-folder-pill {
   display: inline-flex;
   align-items: center;
-  gap: .3rem;
+  gap: .35rem;
   background: var(--surface-light);
   border: 1px solid var(--border);
   border-radius: 50px;
@@ -130,6 +130,21 @@
   flex-shrink: 0;
 }
 
+/* ── SVG icons ──────────────────────────────────── */
+.n-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  vertical-align: -2px;
+  display: inline-block;
+}
+.notes-section-label .n-icon { width: 12px; height: 12px; }
+.notes-folder-pill .n-icon   { width: 12px; height: 12px; }
+.notes-drop .n-icon          { width: 14px; height: 14px; margin-right: .35rem; }
+.btn-icon .n-icon            { width: 16px; height: 16px; }
+.notes-empty-icon .n-icon    { width: 48px; height: 48px; opacity: .3; }
+.notes-card-draw-ind .n-icon { width: 11px; height: 11px; opacity: .6; }
+
 /* ── Section labels ─────────────────────────────── */
 .notes-section { margin-bottom: 1.5rem; }
 .notes-section.hidden { display: none !important; }
@@ -141,6 +156,9 @@
   text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
 }
 
 /* ── Notes grid ─────────────────────────────────── */
@@ -210,16 +228,30 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: .2rem .3rem;
+  padding: .25rem .3rem;
   border-radius: 5px;
-  font-size: .75rem;
   line-height: 1;
   color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
   transition: background .15s, color .15s;
 }
+.notes-card-icon-btn .n-icon { width: 13px; height: 13px; }
 .notes-card-icon-btn:hover { background: var(--surface-light); color: var(--text-secondary); }
 .notes-card-icon-btn.is-active { color: var(--accent-blue); }
 .notes-card-del-btn:hover { color: var(--danger) !important; }
+
+/* ── Adaptive contrast: cards with pastel backgrounds ── */
+.notes-card.has-bg { background: var(--card-bg); }
+.notes-card.has-bg .notes-card-title    { color: #1c1c1e; }
+.notes-card.has-bg .notes-card-preview  { color: rgba(0,0,0,.62); }
+.notes-card.has-bg .notes-card-date,
+.notes-card.has-bg .notes-card-wc       { color: rgba(0,0,0,.42); }
+.notes-card.has-bg .notes-card-untitled { color: rgba(0,0,0,.32); }
+.notes-card.has-bg .notes-card-icon-btn { color: rgba(0,0,0,.4); }
+.notes-card.has-bg .notes-card-icon-btn:hover { background: rgba(0,0,0,.07); color: rgba(0,0,0,.7); }
+.notes-card.has-bg .notes-card-icon-btn.is-active { color: var(--accent-blue); }
+.notes-card.has-bg .notes-card-draw-ind { color: rgba(0,0,0,.45); }
 
 .notes-card-preview {
   font-size: .78rem;
@@ -341,7 +373,12 @@
   flex-wrap: wrap;
 }
 
-.notes-mode-btn { transition: background .15s, color .15s, border-color .15s; }
+.notes-mode-btn {
+  transition: background .15s, color .15s, border-color .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+}
 .notes-mode-btn.active {
   background: rgba(10,132,255,.14);
   border-color: rgba(10,132,255,.3);
@@ -371,7 +408,8 @@
 }
 .notes-drop.hidden { display: none; }
 .notes-drop button {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   background: none;
   border: none;
@@ -508,6 +546,22 @@
   background: var(--note-bg, transparent);
   transition: background .25s;
 }
+
+/* Adaptive contrast: pastel note background → dark text */
+.notes-ed-body.is-light-bg .notes-title-inp,
+.notes-ed-body.is-light-bg .notes-content-area { color: #1c1c1e; }
+.notes-ed-body.is-light-bg .notes-title-inp::placeholder { color: rgba(0,0,0,.3); }
+.notes-ed-body.is-light-bg .notes-content-area:empty::before { color: rgba(0,0,0,.3); }
+.notes-ed-body.is-light-bg .notes-content-area h4 { color: rgba(0,0,0,.65); }
+.notes-ed-body.is-light-bg .notes-content-area blockquote { color: rgba(0,0,0,.6); }
+.notes-ed-body.is-light-bg .notes-content-area pre {
+  background: rgba(0,0,0,.06);
+  border-color: rgba(0,0,0,.1);
+}
+.notes-ed-body.is-light-bg .n-cb { border-color: rgba(0,0,0,.3); }
+.notes-ed-body.is-light-bg .n-cl-item.done .n-cl-text { color: rgba(0,0,0,.4); }
+.notes-ed-body.is-light-bg .notes-color-row { background: rgba(0,0,0,.04); border-bottom-color: rgba(0,0,0,.08); }
+.notes-ed-body.is-light-bg .n-audio-player { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
 
 /* Color strip */
 .notes-color-row {
